@@ -1,0 +1,40 @@
+#editor {
+	min-height: 300px;
+}
+
+#editor-tree {
+	position: absolute;
+	width: 20em;
+	padding-bottom: 1em;
+}
+
+#editor-tabs {
+	margin-left: 20.6em;
+}
+#editor-tabs li .ui-icon-close {
+	float: left;
+	margin: 0.1em 0.1em 0 0;
+	cursor: pointer;
+}
+
+#editor-toolbar {
+	padding: 4px 4px;
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+}
+
+
+div.editor-file-editor > div {
+	background-color: #fff;
+	/*border: 1px solid black;*/
+}
+
+.CodeMirror {
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+
+.ui-widget-container {
+	border: 1px solid #dfd9c3;
+	background: #f5f3e5;
+	color: #312e25;
+}

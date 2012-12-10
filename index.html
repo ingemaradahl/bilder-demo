@@ -6,18 +6,22 @@
 	<title>Test</title>
 	<link rel="stylesheet" href="lib/css/jquery-ui.css"/>
 	<link rel="stylesheet" href="lib/css/jqtree.css"/>
-	<link rel="stylesheet" href="css/filetree.css"/>
+	<link rel="stylesheet" href="lib/css/codemirror.css"/>
+	<link rel="stylesheet" href="css/editor.css"/>
 	<style type="text/css">
 		body {
 			font-size: 10px;
 		}
 
-		#editor-tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
 	</style>
 	<script type="text/javascript" src="lib/js/jquery.js"></script>
 	<script type="text/javascript" src="lib/js/jquery-ui.js"></script>
 	<script type="text/javascript" src="lib/js/sprintf.js"></script>
 	<script type="text/javascript" src="lib/js/jqTree.js"></script>
+
+	<script type="text/javascript" src="lib/js/codemirror.js"></script>
+	<script type="text/javascript" src="lib/codemirror/mode/javascript/javascript.js"></script>
+	<script type="text/javascript" src="lib/codemirror/keymap/vim.js"></script>
 
 	<script type="text/javascript" src="js/templates.js"></script>
 	<script type="text/javascript" src="js/config.js"></script>
@@ -36,18 +40,27 @@
 </head>
 <body>
 
+<div id="editor-dialog-newfile" title="New file">
+    <form>
+        <fieldset class="ui-helper-reset">
+            <label for="tab_title">File name</label>
+			<input type="text" name="filename" id="editor-dialog-newfile-name"
+				value="" class="ui-widget-content ui-corner-all" />
+        </fieldset>
+    </form>
+</div>
+
 <div id="editor" class="ui-widget">
-	<div id="editor-tree">
+	<div id="editor-toolbar" class="ui-widget-header ui-corner-all">
+		<button id="editor-button-newfile">New file</button>
+		<button id="editor-button-compile">Compile</button>
+	</div>
+	<div id="editor-tree" class="ui-widget ui-widget-content ui-corner-all">
 	</div>
 
 	<div id="editor-tabs">
 		<ul>
-			<li>
-			<a href='#tab-1'>test-tab</a>
-			<span class='ui-icon ui-icon-close'>Remove Tab</span>
-			</li>
 		</ul>
-		<div id="tab-1">apa bepa cepa</div>
 	</div>
 </div>
 

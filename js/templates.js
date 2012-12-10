@@ -6,7 +6,7 @@ var templates = {
 		      "<a href='#{href}'>#{label}</a>" +
 		      "<span class='ui-icon ui-icon-close'>Remove Tab</span>" +
 		      "</li>",
-		container : "<div id='#{id}'>#{content}</div>",
+		container : '<div id="#{id}" class="editor-file-editor"></div>',
 		file : "<li>" +
 		       "<a href='#{href}'>#{label}</a>" +
 		       "</li>"
