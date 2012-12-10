@@ -41,20 +41,28 @@
 <body>
 
 <div id="editor-dialog-newfile" title="New file">
-    <form>
-        <fieldset class="ui-helper-reset">
-            <label for="tab_title">File name</label>
+	<form>
+		<fieldset class="ui-helper-reset">
+			<label for="tab_title">File name</label>
 			<input type="text" name="filename" id="editor-dialog-newfile-name"
 				value="" class="ui-widget-content ui-corner-all" />
-        </fieldset>
-    </form>
+		</fieldset>
+	</form>
+</div>
+
+<div id="app">
+	<div><canvas class="ui-widget-content ui-corner-all"></canvas></div>
 </div>
 
 <div id="editor" class="ui-widget">
 	<div id="editor-toolbar" class="ui-widget-header ui-corner-all">
 		<button id="editor-button-newfile">New file</button>
 		<button id="editor-button-compile">Compile</button>
+		<div id="editor-toolbar-loader"></div>
 	</div>
+
+
+
 	<div id="editor-tree" class="ui-widget ui-widget-content ui-corner-all">
 	</div>
 

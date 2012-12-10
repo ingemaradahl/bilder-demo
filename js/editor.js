@@ -1,4 +1,4 @@
-/*jslint browser: true smarttabs: true*/ /*global config $ jQuery sprintf templates CodeMirror */
+/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates CodeMirror */
 
 function Editor() {
 	"use strict";
@@ -12,6 +12,7 @@ function Editor() {
 
 	// TODO: temporary debugging
 	this.files = files;
+	this.tabs = tabs;
 
 	var makeFinder = function(that, attribute) {
 		var f = function (name) {
@@ -42,11 +43,29 @@ function Editor() {
 			if (!this[i] || this[i].id !== id)
 				continue;
 
-			this[i].destroy();
+			var tab = this[i];
 			delete this[i];
+			tab.destroy();
 
 			return;
 		}
+	}.bind(tabs);
+
+	// Whether the tab array is empty or not
+	tabs.empty = function() {
+		var c = 0;
+		for (var i=0; i<this.length; i++) {
+			if (this[i])
+				c++;
+		}
+
+		if (c === 0) {
+			// Clean list
+			this.length = 0;
+			return true;
+		}
+
+		return false;
 	}.bind(tabs);
 
 	/* Creates a new, unused file name */
@@ -140,17 +159,24 @@ function Editor() {
 			this.destroy = function() {
 				$('li[aria-controls="'+this.id+'"]').remove();
 				$("#"+this.id).remove();
+
+				// Always have one tab open
+				if (tabs.empty())
+					_editor.newFile();
+
 				_editor.refresh();
 
-			/*
-			 *    $( "#tabs span.ui-icon-close" ).live( "click", function() {
-             *var panelId = $( this ).closest( "li" ).remove().attr( "aria-controls" );
-             *$( "#" + panelId ).remove();
-             *tabs.tabs( "refresh" );
-			 */
 			};
 		};
 	})();
+
+	var startLoadAnim = function() {
+		$("#editor-toolbar-loader").fadeIn();
+	};
+
+	var stopLoadAnim = function() {
+		$("#editor-toolbar-loader").fadeOut();
+	};
 
 	this.initGUI = function() {
 		var tabs = $("#editor-tabs");
@@ -177,7 +203,7 @@ function Editor() {
 				icons: { primary: "ui-icon-wrench"}
 			})
 			.click(function() {
-				Editor().compile();
+				Editor().compile(stopLoadAnim);
 			});
 
 		$("#editor-button-newfile")
@@ -187,7 +213,6 @@ function Editor() {
 			})
 			.click(function() {
 				$("#editor-dialog-newfile").dialog("open");
-				//Editor().newFile();
 			});
 
 		$("#editor-dialog-newfile")
@@ -251,13 +276,6 @@ function Editor() {
 		var f = new File(name, data);
 		files.push(f);
 
-		// If no files are open, open this file!
-		/*
-		 *if ($("#editor-tabs").tabs("option", "selected") < 0)
-		 *{
-		 *    this.open(f);
-		 *}
-		 */
 		this.open(f);
 	};
 
@@ -306,6 +324,8 @@ function Editor() {
 			success: success,
 			error: failure
 		});
+
+		startLoadAnim();
 	};
 }
 

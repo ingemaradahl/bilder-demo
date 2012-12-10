@@ -23,6 +23,24 @@
 	margin-bottom: 0.6em;
 }
 
+#editor-toolbar-loader {
+	position: relative;
+	float: right;
+	background: url(../images/ajax-loader.gif);
+	width: 24px;
+	height: 24px;
+	display: none;
+}
+
+#editor-dialog-newfile label, #editor-dialog-newfile input {
+	display: block;
+}
+
+#editor-dialog-newfile label {
+	margin-top: 0.5em;
+}
+
+
 
 div.editor-file-editor > div {
 	background-color: #fff;
@@ -37,4 +55,9 @@ div.editor-file-editor > div {
 	border: 1px solid #dfd9c3;
 	background: #f5f3e5;
 	color: #312e25;
+}
+
+.ui-tabs .ui-tabs-panel {
+	padding: 0.2em;
+	padding-top: 0.5em;
 }
