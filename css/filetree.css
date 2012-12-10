@@ -1,0 +1,14 @@
+#editor {
+	min-height: 300px;
+}
+
+#editor-tree {
+	position: absolute;
+	width: 20em;
+}
+
+#editor-tabs {
+	margin-left: 20.6em;
+}
+
+
