@@ -1,4 +1,4 @@
-/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates CodeMirror */
+/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates CodeMirror App */
 
 function Editor() {
 	"use strict";
@@ -9,10 +9,6 @@ function Editor() {
 
 	var tabs = [];
 	var files = [];
-
-	// TODO: temporary debugging
-	this.files = files;
-	this.tabs = tabs;
 
 	var makeFinder = function(that, attribute) {
 		var f = function (name) {
@@ -270,8 +266,10 @@ function Editor() {
 		name = name || newName();
 		data = data || "";
 
-		if (files.findByName(name))
-			return; // TODO ERROR
+		if (files.findByName(name)) {
+			App().error.post(sprintf("File '%s' already exists!", name));
+			return;
+		}
 
 		var f = new File(name, data);
 		files.push(f);
@@ -319,10 +317,16 @@ function Editor() {
 
 		jQuery.ajax(config.compilerURL, {
 			type: 'POST',
-			data: shaders,
-			//dataType: 'json',
-			success: success,
-			error: failure
+			data: "files="+JSON.stringify(fs), //shaders,
+			dataType: 'json',
+			success: function (data) {
+				// TODO: TEMPORARY
+				//data = JSON.parse(data);
+
+				stopLoadAnim();
+				App().runShaders(data);
+			},
+			error: function(err) { App().error.post(err.responseText); stopLoadAnim(); }
 		});
 
 		startLoadAnim();

@@ -25,15 +25,21 @@
 
 	<script type="text/javascript" src="js/templates.js"></script>
 	<script type="text/javascript" src="js/config.js"></script>
+	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/editor.js"></script>
 	<script type="text/javascript">
 		var e;
-		var t;
+		var a;
+		var er;
 		$(document).ready(function() {
 			var editor = new Editor();
 			editor.initGUI();
 			editor.fetch(config.filters);
 
+			var app = new App();
+			app.initGL();
+
+			a = app;
 			e = editor;
 		});
 	</script>
@@ -61,6 +67,8 @@
 		<div id="editor-toolbar-loader"></div>
 	</div>
 
+	<div id="error-box">
+	</div>
 
 
 	<div id="editor-tree" class="ui-widget ui-widget-content ui-corner-all">

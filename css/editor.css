@@ -2,6 +2,11 @@
 	min-height: 300px;
 }
 
+#editor > div {
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+}
+
 #editor-tree {
 	position: absolute;
 	width: 20em;
@@ -19,8 +24,6 @@
 
 #editor-toolbar {
 	padding: 4px 4px;
-	margin-top: 0.6em;
-	margin-bottom: 0.6em;
 }
 
 #editor-toolbar-loader {
@@ -40,6 +43,27 @@
 	margin-top: 0.5em;
 }
 
+#error-box {
+	padding: 0em;
+	margin: 0em;
+}
+
+#editor-box span.ui-icon-alert {
+	float: left;
+	margin: 0.1em 0.1em 0 0;
+}
+
+#error-box span.ui-icon-close {
+	float: right;
+	margin: 0.1em 0.1em 0 0;
+	cursor: pointer;
+}
+
+#error-box > div {
+	display: none;
+	padding: 0.7em;
+	margin: 0.4em 0em;
+}
 
 
 div.editor-file-editor > div {
@@ -50,6 +74,18 @@ div.editor-file-editor > div {
 .CodeMirror {
 	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
 }
+
+#app {
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+	/*display: none;*/
+}
+
+#app canvas {
+	width: 300px;
+	height: 300px;
+}
+
 
 .ui-widget-container {
 	border: 1px solid #dfd9c3;

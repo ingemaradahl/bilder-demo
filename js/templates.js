@@ -10,7 +10,11 @@ var templates = {
 		file : "<li>" +
 		       "<a href='#{href}'>#{label}</a>" +
 		       "</li>"
-	}
+	},
+	error: '<div class="ui-widget ui-state-error ui-corner-all"><p>' +
+	       '<span class="ui-icon ui-icon-close">Close Error</span>' +
+	       '<span class="ui-icon ui-icon-alert"/>' +
+	       '<strong>#{title}</strong></p><p>#{body}</p></div>'
 };
 
 (function() {
