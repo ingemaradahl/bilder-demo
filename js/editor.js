@@ -143,8 +143,14 @@ function Editor() {
 
 			addTab();
 
-			this.open = function() {
+			this.open = function(line, column) {
 				_tabs.tabs("select", index());
+
+				if (line > -1 && column > -1) {
+					_codemirror.scrollIntoView({line: line, ch: column});
+					// TODO: flash line
+				}
+
 			};
 
 			/* Flush content of CodeMirror instance to file object */
@@ -172,6 +178,30 @@ function Editor() {
 
 	var stopLoadAnim = function() {
 		$("#editor-toolbar-loader").fadeOut();
+	};
+
+	var showError = function(error) {
+		var typeDict = {
+			type: "Type Error",
+			compiler: "Compiler Error",
+			syntax: "Syntax Error"
+		};
+
+		App().error.post(sprintf("In file %s\n%s", error.file, error.message),
+		                 typeDict[error.type]);
+
+		if (error.column > -1 && error.line > -1)
+			setPosition(error.file, error.line, error.column);
+	};
+
+	var showWarnings = function(warnings) {
+	};
+
+	var setPosition = function(file, line, column) {
+		var tab = tabs.findByFile(files.findByName(file));
+
+		if (tab)
+			tab.open(line, column);
 	};
 
 	this.initGUI = function() {
@@ -303,6 +333,7 @@ function Editor() {
 	/* Upload open files to compiler */
 	this.compile = function(success, failure) {
 		this.flush();
+		App().error.clear();
 
 		var fs = [];
 
@@ -320,11 +351,16 @@ function Editor() {
 			data: "files="+JSON.stringify(fs), //shaders,
 			dataType: 'json',
 			success: function (data) {
-				// TODO: TEMPORARY
-				//data = JSON.parse(data);
+				if (data.error.message) {
+					stopLoadAnim();
+					showError(data.error);
+					return;
+				}
 
-				stopLoadAnim();
-				App().runShaders(data);
+				if (data.warnings.length)
+					showWarnings(data.warnings);
+
+				App().runShaders(data.data);
 			},
 			error: function(err) { App().error.post(err.responseText); stopLoadAnim(); }
 		});

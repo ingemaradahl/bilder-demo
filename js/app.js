@@ -59,4 +59,13 @@ function ErrorDisplay() {
 		errors.push(new ErrorMessage(str, type));
 	};
 
+	this.clear = function() {
+		for (var i=0; i<errors.length; i++) {
+			if(errors[i])
+				errors[i].destroy();
+		}
+
+		errors = [];
+	};
+
 }
