@@ -1,4 +1,4 @@
-/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates Editor */
+/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates Editor vec2 */
 
 function App() {
 	"use strict";
@@ -41,7 +41,7 @@ function App() {
 	};
 
 	this.resolution = function() {
-		return {width: canvas.width(), height: canvas.height()};
+		return vec2.createFrom(canvas.width(), canvas.height());
 	};
 
 	this.buildProgram = function(p) {
@@ -231,19 +231,35 @@ var Program = (function() {
 			gl.bindBuffer(gl.ARRAY_BUFFER, quad);
 			gl.vertexAttribPointer(program, 2, gl.FLOAT, false, 0, 0);
 
-			for (var u in program.uniforms) {
-				var uniform = program.uniforms[u];
+			for (var name in program.uniforms) {
+				if (!(name in inputValues)) {
+					App().error.post(sprintf("Input value '%s' not set", name));
+					return;
+				}
+
+				var uniform = program.uniforms[name];
+				var binder = null;
 				switch(uniform.type) {
 				case "vec2":
-					gl.uniform2f(uniform, inputValues[u][0], inputValues[u][1]);
+					binder = gl.uniform2fv.bind(gl);
+					break;
+				case "vec3":
+					binder = gl.uniform3fv.bind(gl);
+					break;
+				case "vec4":
+					binder = gl.uniform4fv.bind(gl);
+					break;
+				case "float":
+					binder = gl.uniform1f.bind(gl);
+					break;
+				case "texture":
+				case "int":
+					binder = gl.uniform1i.bind(gl);
 					break;
 				}
+
+				binder(uniform, inputValues[name]);
 			}
-			/*
-			 *gl.activeTexture(gl.TEXTURE0);
-			 *gl.bindTexture(gl.TEXTURE_2D, texture);
-			 *gl.uniform1i(program.samplerUniform, 0);
-			 */
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}.bind(this);
@@ -258,8 +274,7 @@ var Program = (function() {
 			inputValues = inputs;
 
 			// Add fl_Resolution input
-			var resolution = App().resolution();
-			inputValues[config.glsl.resolutionUniform] = [resolution.width, resolution.height];
+			inputValues[config.glsl.resolutionUniform] = App().resolution();
 		};
 
 		// Compile shaders
