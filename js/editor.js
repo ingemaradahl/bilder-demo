@@ -268,7 +268,7 @@ function Editor() {
 				$("#editor-dialog-newfile").dialog("open");
 			});
 
-		$("#editor-dialog-newfile")
+		var dialog = $("#editor-dialog-newfile")
 			.dialog({
 				autoOpen: false,
 				modal: true,
@@ -286,6 +286,14 @@ function Editor() {
 					$(this).find("form")[0].reset();
 				}
 			});
+
+		dialog.find("form").submit(function (event) {
+			var name = dialog.find("#editor-dialog-newfile-name")[0].value;
+			Editor().open(Editor().newFile(name));
+			dialog.dialog("close");
+			event.preventDefault();
+		});
+
 	};
 
 	/* Writes content of codemirror instances to file objects */
