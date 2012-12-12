@@ -188,8 +188,10 @@ function Editor() {
 				$("#"+this.id).remove();
 
 				// Always have one tab open
-				if (tabs.empty())
-					_editor.newFile();
+				if (tabs.empty()) {
+					var f = _editor.newFile();
+					Editor().open(f);
+				}
 
 				_editor.refresh();
 
