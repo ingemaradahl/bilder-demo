@@ -85,37 +85,9 @@
 
 div.editor-file-editor > div {
 	background-color: #fff;
-	/*border: 1px solid black;*/
 }
 
 .CodeMirror {
 	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
 }
 
-#app {
-	margin-top: 0.6em;
-	margin-bottom: 0.6em;
-	/*display: none;*/
-}
-
-#app canvas {
-	width: 300px;
-	height: 300px;
-}
-
-.ui-widget-border {
-	border: 1px solid #dfd9c3;
-}
-
-.ui-widget-container {
-	border: 1px solid #dfd9c3;
-	background: #f5f3e5;
-	color: #312e25;
-}
-
-.ui-tabs .ui-tabs-panel {
-	padding: 0.2em;
-	padding-top: 0.5em;
-}
-
-.ui-tabs .ui-tabs-nav li a { float: left; padding: .2em 1em; text-decoration: none; }

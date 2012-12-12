@@ -1,0 +1,11 @@
+#app {
+	margin-top: 0.6em;
+	margin-bottom: 0.6em;
+	/*display: none;*/
+}
+
+#app canvas {
+	width: 300px;
+	height: 300px;
+}
+
