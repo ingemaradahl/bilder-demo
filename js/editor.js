@@ -75,12 +75,38 @@ function Editor() {
 		var _counter = 0;
 		var _tree = $("#editor-tree > div");
 
+		var addToTree = function(file) {
+			var label = file.name;
+			var parentNode = undefined;
+			var dirs = file.name.split("/");
+			if (dirs.length > 1) {
+				label = dirs.pop();
+
+				for (var i=0; i<dirs.length; i++) {
+					var node = _tree.tree('getNodeById', dirs[i]);
+					if (!node) {
+						node = _tree.tree('appendNode',
+						                  { label: dirs[i], id: dirs[i]},
+						                  parentNode);
+						_tree.tree('openNode', node);
+					}
+
+					parentNode = node;
+				}
+			}
+
+			_tree.tree('appendNode', { label: label, file: file, id: file.name}, parentNode);
+		};
+
 		return function (name, data) {
 			this.id = sprintf("editor-file-%d", _counter++);
 			this.name = name;
 			this.data = data;
 
-			_tree.tree('appendNode', { label: name, file: this});
+			if (/^\//.test(this.name))
+				this.name = this.name.substring(1);
+
+			addToTree(this);
 
 			this.toJSON = function () {
 				return { name: this.name, data: this.data };
@@ -247,7 +273,7 @@ function Editor() {
 				buttons: {
 					Ok: function() {
 						var name = $(this).find("#editor-dialog-newfile-name")[0].value;
-						Editor().newFile(name);
+						Editor().open(Editor().newFile(name));
 						$(this).dialog("close");
 					},
 					Cancel: function() {
@@ -303,7 +329,10 @@ function Editor() {
 		var f = new File(name, data);
 		files.push(f);
 
-		this.open(f);
+		if (name === config.defaultFile)
+			this.open(f);
+
+		return f;
 	};
 
 	/* Download file from host */
