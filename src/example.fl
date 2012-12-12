@@ -1,31 +1,31 @@
 Color level(Color color_in, Color levels, Float inBlack, Float inWhite, Float outBlack, Float outWhite, Color inGamma)
 {
-	return pow((color_in - inBlack) / (inWhite - inBlack), inGamma) * (outWhite - outBlack) + outBlack;
+  return pow((color_in - inBlack) / (inWhite - inBlack), inGamma) * (outWhite - outBlack) + outBlack;
 }
 
 Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Float y)
 {
-	Vec2 p = Vec2(x,y) - center;
-	Float dist = length(p);
+  Vec2 p = Vec2(x,y) - center;
+  Float dist = length(p);
 
-	if (dist < radius)
-	{
-		Float percent = (radius-dist)/radius;
-		Float theta = percent*percent*angle;
-		Float s = sin(theta);
-		Float c = cos(theta);
+  if (dist < radius)
+  {
+    Float percent = (radius-dist)/radius;
+    Float theta = percent*percent*angle;
+    Float s = sin(theta);
+    Float c = cos(theta);
 
-		p = Vec2(p.x*c-p.y*s, p.x*s+p.y*c);
-	}
+    p = Vec2(p.x*c-p.y*s, p.x*s+p.y*c);
+  }
 
-	//return input_img(p+center/input_img.size()); // Implicit uncurry
+  //return input_img(p+center/input_img.size()); // Implicit uncurry
     return input_img(p+center/Vec2(800.0, 600.0));
 }
 
 Color grayscale(Color color_in)
 {
-	// ITU Rec 709 color conversion standard
-	return Vec4(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb));
+  // ITU Rec 709 color conversion standard
+  return Vec4(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb));
 }
 
 Color main(Float x, Float y)
@@ -35,10 +35,10 @@ Color main(Float x, Float y)
     external Float radius;
     external Float angle;
 
-	Image twisted = twist(img_in, center, radius, angle); // Partial application
+  Image twisted = twist(img_in, center, radius, angle); // Partial application
     Image supah_twisted = twist(twisted, center/Vec2(2.0), radius, angle);
-	return grayscale(supah_twisted(x,y));
+  return grayscale(supah_twisted(x,y));
 
-	//return twist(img_in, center, radius, angle).map(grayscale);
+  //return twist(img_in, center, radius, angle).map(grayscale);
 }
 

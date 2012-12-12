@@ -9,12 +9,24 @@
 
 #editor-tree {
 	position: absolute;
-	width: 20em;
+	width: 18em;
+	padding: 0.4em;
+}
+
+#editor-tree > div {
+	background-color: #fff;
 	padding-bottom: 1em;
 }
 
+#editor-tree > h3 {
+	margin-bottom: 0.4em;
+	padding: 0.4em;
+	height: 1.1em;
+	color: #459e00;
+}
+
 #editor-tabs {
-	margin-left: 20.6em;
+	margin-left: 19.4em;
 }
 #editor-tabs li .ui-icon-close {
 	float: left;
@@ -86,6 +98,9 @@ div.editor-file-editor > div {
 	height: 300px;
 }
 
+.ui-widget-border {
+	border: 1px solid #dfd9c3;
+}
 
 .ui-widget-container {
 	border: 1px solid #dfd9c3;

@@ -73,8 +73,7 @@ function Editor() {
 
 	var File = (function () {
 		var _counter = 0;
-		var _tree = $("#editor-tree");
-		var _editor = new Editor();
+		var _tree = $("#editor-tree > div");
 
 		return function (name, data) {
 			this.id = sprintf("editor-file-%d", _counter++);
@@ -92,7 +91,7 @@ function Editor() {
 	var Tab = (function () {
 		var _counter = 0;
 		var _tabs = $("#editor-tabs");
-		var _editor = Editor(); // JSLint complains about missing new
+		var _editor = Editor();
 
 		return function (file) {
 			this.id = sprintf("editor-tab-%d", _counter++);
@@ -172,11 +171,11 @@ function Editor() {
 		};
 	})();
 
-	var startLoadAnim = function() {
+	this.startLoadAnim = function() {
 		$("#editor-toolbar-loader").fadeIn();
 	};
 
-	var stopLoadAnim = function() {
+	this.stopLoadAnim = function() {
 		$("#editor-toolbar-loader").fadeOut();
 	};
 
@@ -192,7 +191,7 @@ function Editor() {
 
 		if (error.column > -1 && error.line > -1)
 			setPosition(error.file, error.line, error.column);
-	};
+	}.bind(this);
 
 	var showWarnings = function(warnings) {
 	};
@@ -206,7 +205,7 @@ function Editor() {
 
 	this.initGUI = function() {
 		var tabs = $("#editor-tabs");
-		var tree = $("#editor-tree");
+		var tree = $("#editor-tree > div");
 
 		if (!tabs.size() || !tree.size())
 			return;
@@ -229,7 +228,7 @@ function Editor() {
 				icons: { primary: "ui-icon-wrench"}
 			})
 			.click(function() {
-				Editor().compile(stopLoadAnim);
+				Editor().compile();
 			});
 
 		$("#editor-button-newfile")
@@ -331,7 +330,7 @@ function Editor() {
 	};
 
 	/* Upload open files to compiler */
-	this.compile = function(success, failure) {
+	this.compile = function() {
 		this.flush();
 		App().error.clear();
 
@@ -348,11 +347,15 @@ function Editor() {
 
 		jQuery.ajax(config.compilerURL, {
 			type: 'POST',
-			data: "files="+JSON.stringify(fs), //shaders,
+			data: shaders,
 			dataType: 'json',
 			success: function (data) {
+				if (!data) {
+					App().error.post("Bad response from compiler");
+					return;
+				}
+
 				if (data.error.message) {
-					stopLoadAnim();
 					showError(data.error);
 					return;
 				}
@@ -360,12 +363,23 @@ function Editor() {
 				if (data.warnings.length)
 					showWarnings(data.warnings);
 
-				App().runShaders(data.data);
+				App().buildProgram(data.data);
 			},
-			error: function(err) { App().error.post(err.responseText); stopLoadAnim(); }
+			error: function(err) {
+				// TODO: nicer error..
+				App().error.post(err.responseText);
+			}
 		});
 
-		startLoadAnim();
+		this.startLoadAnim();
+	};
+
+	this.disableCompile = function() {
+		$("#editor-button-compile").button("disable");
+	};
+
+	this.enableCompile = function() {
+		$("#editor-button-compile").button("enable");
 	};
 }
 

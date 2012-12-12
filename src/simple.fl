@@ -1,0 +1,4 @@
+Vec4 main(Float x, Float y) {
+	return Vec4(x, y, 0.0, 1.0);
+}
+
