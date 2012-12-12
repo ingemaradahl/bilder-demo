@@ -13,8 +13,10 @@ var templates = {
 	},
 	error: '<div class="ui-widget ui-state-error ui-corner-all"><p>' +
 	       '<span class="ui-icon ui-icon-close">Close Error</span>' +
+	       '<div>' +
 	       '<span class="ui-icon ui-icon-alert"/>' +
-	       '<strong>#{title}</strong></p><p>#{body}</p></div>',
+	       '<strong>#{title}</strong></p><p>#{body}</p></div>' +
+	       '</div>',
 	glsl: {
 		precision: "precision #{precision} #{type};\n"
 	}

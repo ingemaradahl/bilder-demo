@@ -60,9 +60,14 @@
 	margin: 0em;
 }
 
-#editor-box span.ui-icon-alert {
+#error-box span.ui-icon-alert {
 	float: left;
-	margin: 0.1em 0.1em 0 0;
+	display: inline-block;
+}
+
+#error-box strong {
+	margin: 0.1em;
+	display: inline-block;
 }
 
 #error-box span.ui-icon-close {
