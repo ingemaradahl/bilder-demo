@@ -485,11 +485,11 @@ function Inputs() {
 		var div = $('<div/>');
 		div.append(name + ": ");
 
-		input_values[name] = "0.0"; // TODO: Different depending on int or float.
+		input_values[name] = Number("0.0"); // TODO: Different depending on int or float.
 
 		// on update
 		var onUpdate = function() {
-			input_values[name] = this.value;
+			input_values[name] = Number(this.value);
 			sendInputs();
 		};
 
@@ -518,7 +518,7 @@ function Inputs() {
 			// on update
 			var onUpdate = function(index) {
 				return function() {
-					field_values[index] = this.value;
+					field_values[index] = Number(this.value);
 					updateValues();
 				};
 			};
