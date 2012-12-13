@@ -475,7 +475,7 @@ function Inputs() {
 		// create the input box.
 		div.append($('<input/>', {
 				type: 'text',
-				value: 'texture',
+				value: '/images/lena.jpg',
 				name: 'uniform_' + name
 			}).addClass('uniform_input').change(onUpdate));
 
@@ -515,22 +515,24 @@ function Inputs() {
 				sendInputs();
 			};
 
+			// on update
+			var onUpdate = function(index) {
+				return function() {
+					field_values[index] = this.value;
+					updateValues();
+				};
+			};
+
 			for (var i=0; i<size; i++) {
 				// set inital value
 				field_values[i] = 0.0;
-
-				// on update
-				var onUpdate = function() {
-					field_values[i] = this.value;
-					updateValues();
-				};
 
 				// create the input box.
 				div.append($('<input/>', {
 						type: 'text',
 						value: '0.0',
 						name: 'uniform_' + name
-					}).addClass('uniform_input').change(onUpdate));
+					}).addClass('uniform_input').change(onUpdate(i)));
 			}
 
 			input_values[name] = field_values;
