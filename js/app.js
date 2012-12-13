@@ -467,9 +467,30 @@ function ErrorDisplay() {
 		box.find(".ui-icon-close").click(this.destroy.bind(this));
 	};
 
+	var InfoMessage = function(str, type) {
+		type = type || "Warning";
+		var box = $(templates.info(type, nl2br(str))).appendTo(errorBox).fadeIn();
+
+		this.destroy = function() {
+			box.fadeOut(function() { box.remove(); });
+
+			for (var i=0; i<errors.length; i++) {
+				if (errors[i] === this)
+					delete errors[i];
+			}
+		};
+
+		setTimeout(this.destroy.bind(this), 5000);
+		box.find(".ui-icon-close").click(this.destroy.bind(this));
+	};
+
 	this.post = function(str, type) {
 		Editor().stopLoadAnim();
 		errors.push(new ErrorMessage(str, type));
+	};
+
+	this.postWarning = function(str, type) {
+		errors.push(new InfoMessage(str, type));
 	};
 
 	this.clear = function() {
