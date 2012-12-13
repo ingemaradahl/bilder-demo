@@ -1,0 +1,4 @@
+Vec4 main(Float x, Float y) {
+	external Image img_in;
+	return img_in(x,y);
+}
