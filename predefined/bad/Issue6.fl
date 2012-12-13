@@ -1,0 +1,10 @@
+Color blur(Image img_in, Float x, Float y) {
+  return (img_in(x-1.0, y) * img_in(x, y) * img_in(x+1.0, y) * img_in(x,y))/4.0;
+}
+
+Color main(Float x, Float y) {
+  external Image img;
+  Image blurred = blur(img);
+
+  return blurred(x, y);
+}
