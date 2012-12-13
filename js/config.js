@@ -4,9 +4,9 @@ var config = {
 	compilerURL: "cmp/cgicomp",
 	newName : "untitled-%d",
 	files: {
-		defaultFile: "src/simple.fl",
+		defaultFile: "tests/sample.fl",
 		root: "predefined/",
-		fetch: ["src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl"]
+		fetch: ["tests/sample.fl", "src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl"]
 	},
 	glsl: {
 		precision: "highp",
