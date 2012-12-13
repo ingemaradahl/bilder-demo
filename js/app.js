@@ -8,6 +8,7 @@ function App() {
 	App.prototype.__instance = this;
 
 	this.error = new ErrorDisplay();
+	this.messages = new MessageBus();
 	this.program = null;
 
 	var canvas = $("canvas");
@@ -270,9 +271,9 @@ var Program = (function() {
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}.bind(this);
 
-		this.run = function(shader) {
+		this.run = function() {
 			// TEMP
-			runShader(shader);
+			runShader(graph.filename);
 		};
 
 		this.setInputs = function(inputs) {
@@ -287,13 +288,14 @@ var Program = (function() {
 		for (var i=0; i<program.shaders.length; i++) {
 			var name = program.shaders[i].name;
 			glPrograms[name] = compileShader(program.shaders[i]);
+
+			if (!glPrograms[name])
+				return;
 		}
 
 		collectInputs(graph);
 
-		// Temp
-		this.setInputs({});
-		this.run(graph.filename);
+		App().messages.post("new-input-controls", this.inputs);
 	};
 })();
 
