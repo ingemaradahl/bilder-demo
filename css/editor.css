@@ -60,6 +60,7 @@
 	margin: 0em;
 }
 
+#error-box span.ui-icon-info,
 #error-box span.ui-icon-alert {
 	float: left;
 	display: inline-block;
@@ -72,13 +73,14 @@
 
 #error-box span.ui-icon-close {
 	float: right;
-	margin: 0.1em 0.1em 0 0;
+	margin: -0.2em 0.1em 0 0;
 	cursor: pointer;
 }
 
 #error-box > div {
 	display: none;
-	padding: 0.7em;
+	padding-left: 0.7em;
+	padding-right: 0.7em;
 	margin: 0.4em 0em;
 }
 

@@ -58,12 +58,36 @@ function App() {
 	 * The message body/callback argument is { url: string, texture: gl-texture}
 	 */
 	this.loadImage = function(url, callback) {
-		var img = new Image();
+		var image = new Image();
+
+		function isPowerOfTwo(x) {
+			return (x & (x - 1)) === 0;
+		}
+
+		function nextHighestPowerOfTwo(x) {
+			--x;
+			for (var i = 1; i < 32; i <<= 1) {
+				x = x | x >> i;
+			}
+			return x + 1;
+		}
 
 		var finalize = function() {
+			//Images might have to be resized, see
+			//http://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
+			if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
+				// Scale up the texture to the next highest power of two dimensions.
+				var canvas = document.createElement("canvas");
+				canvas.width = nextHighestPowerOfTwo(image.width);
+				canvas.height = nextHighestPowerOfTwo(image.height);
+				var ctx = canvas.getContext("2d");
+				ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+				image = canvas;
+			}
+
 			var texture = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
@@ -75,8 +99,8 @@ function App() {
 				callback({url: url, texture: texture});
 		}.bind(this);
 
-		img.onload = finalize;
-		img.src = url;
+		image.onload = finalize;
+		image.src = url;
 	};
 
 	this.refresh = function () {
@@ -265,7 +289,7 @@ var Program = (function() {
 		}.bind(this);
 
 		var newImage = function (img) {
-			if (!(url in this.inputs) || !img || !img.url || !img.texture)
+			if (!img || !img.url || !img.texture)
 				return;
 
 			// Find missing textures
@@ -274,7 +298,7 @@ var Program = (function() {
 				if (inputValues[name] === img.url) {
 					inputValues[name] = img.texture;
 				}
-				else if (typeof(inputValues[name] === "string")) {
+				else if (typeof(inputValues[name]) === "string") {
 					missing++;
 				}
 			}
@@ -286,6 +310,8 @@ var Program = (function() {
 
 		var runShader = function (shader, inputs) {
 			var program;
+			var textureUnit = 0;
+			var value;
 
 			if (typeof(shader) === "string")
 				program = glPrograms[shader];
@@ -296,7 +322,12 @@ var Program = (function() {
 			gl.useProgram(program);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-			gl.vertexAttribPointer(program, 2, gl.FLOAT, false, 0, 0);
+			gl.vertexAttribPointer(program.positionAttrib, 2, gl.FLOAT, false, 0, 0);
+
+			//TEMP
+			var res = App().resolution();
+			gl.viewport(0, 0, res[0], res[1]);
+
 
 			for (var name in program.uniforms) {
 				if (!(name in inputValues)) {
@@ -306,6 +337,7 @@ var Program = (function() {
 
 				var uniform = program.uniforms[name];
 				var binder = null;
+				value = inputValues[name];
 				switch(uniform.type) {
 				case "vec2":
 					binder = gl.uniform2fv.bind(gl);
@@ -320,6 +352,9 @@ var Program = (function() {
 					binder = gl.uniform1f.bind(gl);
 					break;
 				case "texture":
+					value = textureUnit++;
+					gl.activeTexture(gl.TEXTURE0 + value);
+					gl.bindTexture(gl.TEXTURE_2D, inputValues[name]);
 				case "int":
 					binder = gl.uniform1i.bind(gl);
 					break;
@@ -328,8 +363,10 @@ var Program = (function() {
 					return;
 				}
 
-				binder(uniform, inputValues[name]);
+				binder(uniform, value);
 			}
+
+
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}.bind(this);
@@ -344,7 +381,7 @@ var Program = (function() {
 
 			var mustWait = false;
 			for (var name in this.inputs) {
-				var type = this.inputs[type];
+				var type = this.inputs[name];
 				var value = inputs[name];
 
 				switch (type) {
@@ -383,7 +420,7 @@ var Program = (function() {
 			inputValues[config.glsl.resolutionUniform] = App().resolution();
 
 			if (!mustWait)
-				this.run();
+				this.run(inputValues);
 		};
 
 		this.destroy = function() {
@@ -550,9 +587,30 @@ function ErrorDisplay() {
 		box.find(".ui-icon-close").click(this.destroy.bind(this));
 	};
 
+	var InfoMessage = function(str, type) {
+		type = type || "Warning";
+		var box = $(templates.info(type, nl2br(str))).appendTo(errorBox).fadeIn();
+
+		this.destroy = function() {
+			box.fadeOut(function() { box.remove(); });
+
+			for (var i=0; i<errors.length; i++) {
+				if (errors[i] === this)
+					delete errors[i];
+			}
+		};
+
+		setTimeout(this.destroy.bind(this), 5000);
+		box.find(".ui-icon-close").click(this.destroy.bind(this));
+	};
+
 	this.post = function(str, type) {
 		Editor().stopLoadAnim();
 		errors.push(new ErrorMessage(str, type));
+	};
+
+	this.postWarning = function(str, type) {
+		errors.push(new InfoMessage(str, type));
 	};
 
 	this.clear = function() {

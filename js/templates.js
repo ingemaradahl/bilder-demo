@@ -17,6 +17,12 @@ var templates = {
 	       '<span class="ui-icon ui-icon-alert"/>' +
 	       '<strong>#{title}</strong></p><p>#{body}</p></div>' +
 	       '</div>',
+	info:  '<div class="ui-widget ui-state-highlight ui-corner-all"><p>' +
+	       '<span class="ui-icon ui-icon-close">Close Info</span>' +
+	       '<div>' +
+	       '<span class="ui-icon ui-icon-info"/>' +
+	       '<strong>#{title}</strong></p><p>#{body}</p></div>' +
+	       '</div>',
 	glsl: {
 		precision: "precision #{precision} #{type};\n"
 	}
