@@ -37,7 +37,7 @@
 		$(document).ready(function() {
 			var editor = new Editor();
 			editor.initGUI();
-			editor.fetch(config.filters);
+			editor.fetch(config.files.fetch);
 
 			var app = new App();
 			app.initGL();

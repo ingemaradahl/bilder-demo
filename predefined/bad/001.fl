@@ -1,0 +1,8 @@
+Float fun(Float i) {
+  external Float not_allowed;
+  return i-not_allowed;
+}
+
+Vec4 main(Float x, Float y) {
+	return Vec4(x, y, 0.3, fun(1.0));
+}

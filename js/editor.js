@@ -339,7 +339,7 @@ function Editor() {
 		var f = new File(name, data);
 		files.push(f);
 
-		if (name === config.defaultFile)
+		if (name === config.files.defaultFile)
 			this.open(f);
 
 		return f;
@@ -359,7 +359,7 @@ function Editor() {
 			break;
 		case "string":
 			var file = files;
-			jQuery.ajax(file, {
+			jQuery.ajax(config.files.root + file, {
 				dataType: 'text',
 				success: this.newFile.bind(this, file)
 			});

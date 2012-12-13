@@ -3,8 +3,11 @@
 var config = {
 	compilerURL: "cmp/cgicomp",
 	newName : "untitled-%d",
-	defaultFile: "src/simple.fl",
-	filters: ["src/example.fl", "src/gaussion.fl", "src/simple.fl"],
+	files: {
+		defaultFile: "src/simple.fl",
+		root: "predefined/",
+		fetch: ["src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/001.fl"]
+	},
 	glsl: {
 		precision: "highp",
 		resolutionUniform: "fl_Resolution",

@@ -224,7 +224,13 @@ var Program = (function() {
 		}.bind(this);
 
 		var runShader = function (shader, inputs) {
-			var program = glPrograms[shader];
+			var program;
+
+			if (typeof(shader) === "string")
+				program = glPrograms[shader];
+			else
+				program = shader;
+
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			gl.useProgram(program);
 
