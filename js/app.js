@@ -337,5 +337,37 @@ function ErrorDisplay() {
 
 		errors = [];
 	};
+}
 
+function MessageBus() {
+	"use strict";
+
+	var routing = {};
+
+	this.subscribe = function(title, fn) {
+		if (!(title in routing))
+			routing[title] = [];
+
+		routing[title].push(fn);
+	};
+
+	this.unsubscribe = function(title, fn) {
+		if (!(title in routing))
+			return;
+
+		for (var i=0; i<routing[title].length; i++) {
+			if (routing[title][i] === fn)
+				delete routing[title][i];
+		}
+	};
+
+	this.post = function(title, message) {
+		if (!(title in routing))
+			return;
+
+		for (var i=0; i<routing[title].length; i++) {
+			if (routing[title][i])
+				routing[title][i](message);
+		}
+	};
 }
