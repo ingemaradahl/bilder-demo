@@ -9,6 +9,7 @@ function App() {
 
 	this.error = new ErrorDisplay();
 	this.messages = new MessageBus();
+	this.imgCache = {};
 	this.program = null;
 
 	var canvas = $("canvas");
@@ -34,7 +35,44 @@ function App() {
 
 		gl = this.gl;
 		gl.clearColor(0.0, 0.0, 0.0, 0.0);
-		//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	};
+
+	/*
+	 * Returns WebGL texture
+	 */
+	this.getGLImage = function(url) {
+		if (!(url in this.imgCache))
+			return null;
+
+		return this.imgCache[url];
+	};
+
+	/*
+	 * Loads an image url into a WebGL texture and emits the "new-gl-image"
+	 * message. If a callback is given, it will be called as well.
+	 *
+	 * The message body/callback argument is { url: string, texture: gl-texture}
+	 */
+	this.loadImage = function(url, callback) {
+		var img = new Image();
+
+		var finalize = function() {
+			var texture = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, texture);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+			this.messages.post("new-gl-image", {url: url, texture: texture});
+
+			this.imgCache[url] = texture;
+
+			if (callback)
+				callback({url: url, texture: texture});
+		}.bind(this);
+
+		img.onload = finalize;
+		img.src = url;
 	};
 
 	this.refresh = function () {
@@ -50,14 +88,13 @@ function App() {
 		buildInputGUI();
 	};
 
-	this.loadImage = (function() {
-		var imgCache = {};
-		return function(url) {
-			// return gl-texture
-		};
-	})();
+	var setInput = function(inputs) {
+		if (this.program)
+			this.program.setInputs(inputs);
+	}.bind(this);
 
 	canvas.resizable({resize: this.refresh});
+	this.messages.subscribe("new-inputs", setInput);
 	this.refresh();
 }
 
@@ -205,7 +242,6 @@ var Program = (function() {
 			return inputs;
 		};
 
-
 		/*
 		 * Collects all possible uniforms for the entire filter program, and
 		 * stores the result in this.inputs as a dict of { name: type }
@@ -222,6 +258,26 @@ var Program = (function() {
 				else if (input.name !== config.glsl.resolutionUniform)
 					this.inputs[input.name] = input.type;
 			}
+		}.bind(this);
+
+		var newImage = function (img) {
+			if (!(url in this.inputs) || !img || !img.url || !img.texture)
+				return;
+
+			// Find missing textures
+			var missing = 0;
+			for (var name in inputValues) {
+				if (inputValues[name] === img.url) {
+					inputValues[name] = img.texture;
+				}
+				else if (typeof(inputValues[name] === "string")) {
+					missing++;
+				}
+			}
+
+			// A bit tacky to do this here, but whatever :P
+			if (missing === 0)
+				this.run();
 		}.bind(this);
 
 		var runShader = function (shader, inputs) {
@@ -263,6 +319,9 @@ var Program = (function() {
 				case "int":
 					binder = gl.uniform1i.bind(gl);
 					break;
+				default:
+					console.log("Bad uniform type: '%s' for '%s'", typeof(uniform.type), name);
+					return;
 				}
 
 				binder(uniform, inputValues[name]);
@@ -277,11 +336,55 @@ var Program = (function() {
 		};
 
 		this.setInputs = function(inputs) {
-			// TODO: Check inputs
-			inputValues = inputs;
+			inputs = inputs || {};
+
+			var mustWait = false;
+			for (var name in this.inputs) {
+				var type = this.inputs[type];
+				var value = inputs[name];
+
+				switch (type) {
+				case "float":
+				case "int":
+					if (typeof(value) !== "number") {
+						console.log(sprintf("Bad value for input %s: %s", name, value));
+						return;
+					}
+					inputValues[name] = value;
+					break;
+				case "vec2":
+				case "vec3":
+				case "vec4":
+					if (!value || value.constructor !== Float32Array) {
+						console.log(sprintf("Bad value for input %s: %s", name, value));
+						return;
+					}
+					inputValues[name] = value;
+					break;
+				case "texture":
+					var url = value;
+					if (url in App().imgCache) {
+						inputValues[name] = App().getGLImage(url);
+					}
+					else {
+						App().loadImage(url);
+						inputValues[name] = url;
+						mustWait = true;
+					}
+					break;
+				}
+			}
 
 			// Add fl_Resolution input
 			inputValues[config.glsl.resolutionUniform] = App().resolution();
+
+			if (!mustWait)
+				this.run();
+		};
+
+		this.destroy = function() {
+			App().unsubscribe("new-gl-image", newImage);
+			// TODO: remove programs from gl and stuff!
 		};
 
 		// Compile shaders
@@ -295,6 +398,7 @@ var Program = (function() {
 
 		collectInputs(graph);
 
+		App().messages.subscribe("new-gl-image", newImage);
 		App().messages.post("new-input-controls", this.inputs);
 	};
 })();
