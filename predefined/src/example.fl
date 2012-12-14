@@ -25,18 +25,18 @@ Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Fl
 Color grayscale(Color color_in)
 {
   // ITU Rec 709 color conversion standard
-  return Vec4(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb));
+  return Vec4(Vec3(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb)), color_in.a);
 }
 
 Color main(Float x, Float y)
 {
-    external Image img_in;
-    external Vec2  center;
-    external Float radius;
-    external Float angle;
+  external Image img_in;
+  external Vec2  center;
+  external Float radius;
+  external Float angle;
 
   Image twisted = twist(img_in, center, radius, angle); // Partial application
-    Image supah_twisted = twist(twisted, center/Vec2(2.0), radius, angle);
+  Image supah_twisted = twist(twisted, center/Vec2(2.0), radius, angle);
   return grayscale(supah_twisted(x,y));
 
   //return twist(img_in, center, radius, angle).map(grayscale);
