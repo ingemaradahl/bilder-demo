@@ -101,6 +101,15 @@ function App() {
 
 	this.refresh = function () {
 		$(".app-inputs").position({my: "left top", at: "right top", of: "canvas"});
+		canvas[0].width = canvas.width();
+		canvas[0].height = canvas.height();
+
+		// TODO: Improve this, and maybe even remove when programs are run in
+		// real time. Also set new viewport dimension and resolution uniform
+		// values
+		if (App().program) {
+			App().program.run();
+		}
 	};
 
 	this.resolution = function() {
