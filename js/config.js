@@ -7,7 +7,7 @@ var config = {
 	files: {
 		defaultFile: "bad/Issue6.fl",
 		root: "predefined/",
-		fetch: ["tests/sample.fl", "src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl"]
+		fetch: ["tests/sample.fl", "src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl", "bad/Issue17.fl"]
 	},
 	glsl: {
 		precision: "highp",

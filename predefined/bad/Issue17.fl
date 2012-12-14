@@ -1,0 +1,6 @@
+Color green = Color(0.0, 1.0, 0.0, 1.0);
+
+Vec4 main(Float x, Float y) {
+	external Image img_in;
+	return img_in(x,y) * green;
+}
