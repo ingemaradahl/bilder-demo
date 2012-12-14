@@ -103,6 +103,16 @@ function App() {
 	};
 
 	this.refresh = function () {
+		canvas[0].width = canvas.width();
+		canvas[0].height = canvas.height();
+
+		// TODO: Improve this, and maybe even remove when programs are run in
+		// real time. Also set new viewport dimension and resolution uniform
+		// values
+		if (App().program) {
+			App().program.run();
+		}
+
 		controls.height($("canvas").innerHeight() - $(0.8).toPx());
 		$("#editor").position({my: "left top", at: "left bottom", of: "canvas", offset: "0em 6em"});
 
