@@ -18,6 +18,7 @@
 	</style>
 	<script type="text/javascript" src="lib/js/jquery.js"></script>
 	<script type="text/javascript" src="lib/js/jquery-ui.js"></script>
+	<script type="text/javascript" src="lib/js/jquery-conversion.js"></script>
 	<script type="text/javascript" src="lib/js/sprintf.js"></script>
 	<script type="text/javascript" src="lib/js/gl-matrix.js"></script>
 	<script type="text/javascript" src="lib/js/jqTree.js"></script>
@@ -59,9 +60,12 @@
 	</form>
 </div>
 
-<div id="app">
+<div id="app" class="ui-widget">
 	<canvas class="ui-widget-content ui-corner-all"></canvas>
-	<div id="app-inputs"></div>
+	<div id="app-inputs" class="ui-widget ui-widget-content ui-corner-all">
+		<h3 class="ui-helper-reset ui-widget-header ui-corner-all">Program inputs</h3>
+		<div id="app-inputs-widgets"></div>
+	</div>
 </div>
 
 <div id="editor" class="ui-widget">

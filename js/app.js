@@ -22,8 +22,7 @@ function App() {
 	var gl = null;
 
 	var buildInputGUI = function() {
-		// TODO: If there have been no changes - store the old values.
-		controls.html("");
+
 	}.bind(this);
 
 
@@ -104,7 +103,11 @@ function App() {
 	};
 
 	this.refresh = function () {
-		controls.position({my: "left top", at: "right top", of: "canvas"});
+		controls.height($("canvas").innerHeight() - $(0.8).toPx());
+		$("#editor").position({my: "left top", at: "left bottom", of: "canvas", offset: "0em 6em"});
+
+		controls.position({my: "left top", at: "right top", of: "canvas", offset: "6em 0em"});
+		controls.width($(window).width() - controls.position().left - $(1.8).toPx());
 	};
 
 	this.resolution = function() {
@@ -114,6 +117,7 @@ function App() {
 	this.buildProgram = function(p) {
 		buildInputGUI();
 		this.program = new Program(gl, p);
+		this.messages.post("new-input-controls", this.program.inputs);
 	};
 
 	var setInput = function(inputs) {
@@ -440,14 +444,13 @@ var Program = (function() {
 		collectInputs(graph);
 
 		App().messages.subscribe("new-gl-image", newImage);
-		App().messages.post("new-input-controls", this.inputs);
+		//App().messages.post("new-input-controls", this.inputs);
 	};
 })();
 
 function Inputs() {
 	"use strict";
 
-	var panel = $("#app-inputs");
 	var input_values = {};
 
 	/*
@@ -536,6 +539,7 @@ function Inputs() {
 			}
 
 			input_values[name] = field_values;
+			updateValues();
 
 			return div;
 		};
@@ -553,6 +557,12 @@ function Inputs() {
 	 * Called by MessageBus when there are new inputs from a shader.
 	 */
 	this.addInputs = function(ins) {
+		var panel = $("#app-inputs-widgets");
+		// TODO: If there have been no changes - store the old values.
+		// clean up.
+		input_values = {};
+		panel.html("");
+
 		// create widgets for all the inputs.
 		for (var name in ins) {
 			if (ins[name] in widgets)
@@ -560,6 +570,10 @@ function Inputs() {
 			else
 				panel.append('unhandled input type: ' + ins[name] + "<br/>");
 		}
+
+		// and do an initial input update.
+		sendInputs();
+		App().refresh();
 	}.bind(this);
 }
 

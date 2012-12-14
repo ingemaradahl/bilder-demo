@@ -7,5 +7,19 @@
 #app canvas {
 	width: 300px;
 	height: 300px;
+	display: inline;
 }
 
+#app #app-inputs {
+	padding: 0.4em;
+}
+
+#app #app-inputs > div {
+	background-color: #fff;
+}
+
+#app #app-inputs > h3 {
+	padding: 0.4em;
+	height: 1.1em;
+	color: #459e00;
+}
