@@ -583,7 +583,6 @@ function Inputs() {
 
 		// and do an initial input update.
 		sendInputs();
-		App().refresh();
 	}.bind(this);
 }
 
