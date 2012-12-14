@@ -10,7 +10,10 @@ function App() {
 	this.error = new ErrorDisplay();
 	this.messages = new MessageBus();
 	this.imgCache = {};
+	this.inputs = new Inputs();
 	this.program = null;
+
+	this.messages.subscribe("new-input-controls", this.inputs.addInputs);
 
 	var canvas = $("canvas");
 	var controls = $("#app-inputs");
@@ -19,7 +22,8 @@ function App() {
 	var gl = null;
 
 	var buildInputGUI = function() {
-
+		// TODO: If there have been no changes - store the old values.
+		controls.html("");
 	}.bind(this);
 
 
@@ -110,6 +114,8 @@ function App() {
 		if (App().program) {
 			App().program.run();
 		}
+
+		controls.position({my: "left top", at: "right top", of: "canvas"});
 	};
 
 	this.resolution = function() {
@@ -117,8 +123,8 @@ function App() {
 	};
 
 	this.buildProgram = function(p) {
-		this.program = new Program(gl, p);
 		buildInputGUI();
+		this.program = new Program(gl, p);
 	};
 
 	var setInput = function(inputs) {
@@ -449,6 +455,124 @@ var Program = (function() {
 	};
 })();
 
+function Inputs() {
+	"use strict";
+
+	var panel = $("#app-inputs");
+	var input_values = {};
+
+	/*
+	 * Sends all the input values.
+	 */
+	var sendInputs = function() {
+		App().messages.post("new-inputs", input_values);
+	}.bind(this);
+
+	/*
+	 * All input widgets.
+	 */
+	var textureWidget = function(name) {
+		var div = $('<div/>');
+		div.append(name + ": ");
+
+		input_values[name] = "/images/lena.jpg";
+
+		// on update
+		var onUpdate = function() {
+			input_values[name] = this.value;
+			sendInputs();
+		};
+
+		// create the input box.
+		div.append($('<input/>', {
+				type: 'text',
+				value: '/images/lena.jpg',
+				name: 'uniform_' + name
+			}).addClass('uniform_input').change(onUpdate));
+
+		return div;
+	};
+	var numberWidget = function(name) {
+		var div = $('<div/>');
+		div.append(name + ": ");
+
+		input_values[name] = Number("0.0"); // TODO: Different depending on int or float.
+
+		// on update
+		var onUpdate = function() {
+			input_values[name] = Number(this.value);
+			sendInputs();
+		};
+
+		// create the input box.
+		div.append($('<input/>', {
+				type: 'text',
+				value: '0.0',
+				name: 'uniform_' + name
+			}).addClass('uniform_input').change(onUpdate));
+
+		return div;
+	};
+	var vectorWidget = function(size) {
+		return function(name) {
+			var div = $('<div/>');
+			div.append(name + ": ");
+
+			var field_values = [];
+
+			var updateValues = function() {
+				var fun = {2: vec2, 3: vec3, 4: vec4}[size];
+				input_values[name] = fun.createFrom.apply(fun, field_values);
+				sendInputs();
+			};
+
+			// on update
+			var onUpdate = function(index) {
+				return function() {
+					field_values[index] = Number(this.value);
+					updateValues();
+				};
+			};
+
+			for (var i=0; i<size; i++) {
+				// set inital value
+				field_values[i] = 0.0;
+
+				// create the input box.
+				div.append($('<input/>', {
+						type: 'text',
+						value: '0.0',
+						name: 'uniform_' + name
+					}).addClass('uniform_input').change(onUpdate(i)));
+			}
+
+			input_values[name] = field_values;
+
+			return div;
+		};
+	};
+	var widgets = {
+			'texture': textureWidget,
+			'float': numberWidget,
+			'int': numberWidget,
+			'vec2': vectorWidget(2),
+			'vec3': vectorWidget(3),
+			'vec4': vectorWidget(4)
+		};
+
+	/*
+	 * Called by MessageBus when there are new inputs from a shader.
+	 */
+	this.addInputs = function(ins) {
+		// create widgets for all the inputs.
+		for (var name in ins) {
+			if (ins[name] in widgets)
+				panel.append(widgets[ins[name]](name));
+			else
+				panel.append('unhandled input type: ' + ins[name] + "<br/>");
+		}
+	}.bind(this);
+}
 
 function ErrorDisplay() {
 	"use strict";
