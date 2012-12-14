@@ -1,4 +1,4 @@
-/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates Editor vec2 */
+/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates Editor vec2 vec3 vec4 */
 
 function App() {
 	"use strict";
@@ -179,7 +179,7 @@ var Program = (function() {
 
 		this.inputs = {}; // { name: type }
 		var inputValues = {}; // { name: value }
-		var outputs = {}; // { name: gl.texture }
+		var framebuffers = {}; // { name: gl.texture }
 
 		var glPrograms = {};
 		var graph = program.graph;
@@ -288,19 +288,78 @@ var Program = (function() {
 		 * Collects all possible uniforms for the entire filter program, and
 		 * stores the result in this.inputs as a dict of { name: type }
 		 */
-		var collectInputs = function (graph) {
-			for (var i=0; i<graph.inputs.length; i++) {
-				var input = graph.inputs[i];
+		var collectInputs = function(graph) {
+			var inputs = {};
 
-				if (input.name in this.inputs)
-					continue;
+			var collect = function (graph) {
+				for (var i=0; i<graph.inputs.length; i++) {
+					var input = graph.inputs[i];
 
-				if (input.type === "node")
-					collectInputs(input.node);
-				else if (input.name !== config.glsl.resolutionUniform)
-					this.inputs[input.name] = input.type;
-			}
-		}.bind(this);
+					if (input.name in inputs)
+						continue;
+
+					if (input.type === "node")
+						collect(input.node);
+					else if (input.name !== config.glsl.resolutionUniform)
+						inputs[input.name] = input.type;
+				}
+			};
+
+			collect(graph);
+
+			return inputs;
+		};
+
+		/*
+		 * Creates a set of framebuffers and corresponding textures used for
+		 * intermediate render values
+		 */
+		var createRenderTargets = function(graph) {
+			var framebuffers = {};
+
+			var createFramebuffer = function(name) {
+				var framebuffer = gl.createFramebuffer();
+				gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+				var texture = gl.createTexture();
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, config.framebufferSize,
+						config.framebufferSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+				// Renderbuffer probably not needed?
+				//var renderbuffer = gl.createRenderbuffer();
+				//gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+				//gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA4, config.framebufferSize, config.framebufferSize);
+
+				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+				//gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
+				framebuffer.texture = texture;
+				framebuffer.name = name;
+				gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+				return framebuffer;
+			};
+
+			var collect = function(graph) {
+				for (var i=0; i<graph.inputs.length; i++) {
+					var input = graph.inputs[i];
+
+					if (input.name in framebuffers)
+						continue;
+
+					if (input.type === "node") {
+						framebuffers[input.name] = createFramebuffer(input.name);
+						collect(input.node);
+					}
+				}
+			};
+
+			collect(graph);
+			return framebuffers;
+		};
 
 		var newImage = function (img) {
 			if (!img || !img.url || !img.texture)
@@ -322,7 +381,12 @@ var Program = (function() {
 				this.run();
 		}.bind(this);
 
-		var runShader = function (shader, inputs) {
+		/*
+		 * Run the given shader, fetching inputs from the program object.
+		 * Defaults by writing to standard framebuffer, but can optionally write
+		 * to given framebuffer.
+		 */
+		var runShader = function (shader, output) {
 			var program;
 			var textureUnit = 0;
 			var value;
@@ -332,16 +396,28 @@ var Program = (function() {
 			else
 				program = shader;
 
-			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			if (output) {
+				if (typeof(output) === "string") {
+					output = framebuffers[output];
+				}
+
+				if (!gl.isFramebuffer(output))
+					throw "Bad framebuffer";
+
+				gl.viewport(0, 0, config.framebufferSize, config.framebufferSize);
+			}
+			else {
+				output = null;
+				var res = App().resolution();
+				gl.viewport(0, 0, res[0], res[1]);
+			}
+
+			gl.bindFramebuffer(gl.FRAMEBUFFER, output);
+			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.useProgram(program);
 
 			gl.bindBuffer(gl.ARRAY_BUFFER, quad);
 			gl.vertexAttribPointer(program.positionAttrib, 2, gl.FLOAT, false, 0, 0);
-
-			//TEMP
-			var res = App().resolution();
-			gl.viewport(0, 0, res[0], res[1]);
-
 
 			for (var name in program.uniforms) {
 				if (!(name in inputValues)) {
@@ -369,6 +445,7 @@ var Program = (function() {
 					value = textureUnit++;
 					gl.activeTexture(gl.TEXTURE0 + value);
 					gl.bindTexture(gl.TEXTURE_2D, inputValues[name]);
+					/* falls through */
 				case "int":
 					binder = gl.uniform1i.bind(gl);
 					break;
@@ -379,8 +456,6 @@ var Program = (function() {
 
 				binder(uniform, value);
 			}
-
-
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}.bind(this);
@@ -397,6 +472,9 @@ var Program = (function() {
 			for (var name in this.inputs) {
 				var type = this.inputs[name];
 				var value = inputs[name];
+
+				if (!value)
+					continue;
 
 				switch (type) {
 				case "float":
@@ -417,14 +495,16 @@ var Program = (function() {
 					inputValues[name] = value;
 					break;
 				case "texture":
-					var url = value;
-					if (url in App().imgCache) {
-						inputValues[name] = App().getGLImage(url);
-					}
-					else {
-						App().loadImage(url);
-						inputValues[name] = url;
-						mustWait = true;
+					if (typeof(value) === "string") {
+						var url = value;
+						if (url in App().imgCache) {
+							inputValues[name] = App().getGLImage(url);
+						}
+						else {
+							App().loadImage(url);
+							inputValues[name] = url;
+							mustWait = true;
+						}
 					}
 					break;
 				}
@@ -451,7 +531,8 @@ var Program = (function() {
 				return;
 		}
 
-		collectInputs(graph);
+		this.inputs = collectInputs(graph);
+		framebuffers = createRenderTargets(graph);
 
 		App().messages.subscribe("new-gl-image", newImage);
 		//App().messages.post("new-input-controls", this.inputs);
@@ -477,7 +558,7 @@ function Inputs() {
 		var div = $('<div/>');
 		div.append(name + ": ");
 
-		input_values[name] = "/images/lena.jpg";
+		input_values[name] = "images/lena.jpg";
 
 		// on update
 		var onUpdate = function() {
@@ -488,7 +569,7 @@ function Inputs() {
 		// create the input box.
 		div.append($('<input/>', {
 				type: 'text',
-				value: '/images/lena.jpg',
+				value: 'images/lena.jpg',
 				name: 'uniform_' + name
 			}).addClass('uniform_input').change(onUpdate));
 

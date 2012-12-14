@@ -3,8 +3,9 @@
 var config = {
 	compilerURL: "cmp/cgicomp",
 	newName : "untitled-%d",
+	framebufferSize : 512,
 	files: {
-		defaultFile: "tests/sample.fl",
+		defaultFile: "bad/Issue6.fl",
 		root: "predefined/",
 		fetch: ["tests/sample.fl", "src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl"]
 	},
