@@ -263,10 +263,21 @@ function Editor() {
 			autoOpen: true,
 			slide: false
 		});
+		tree.disableSelection();
+
+		// Clicks on file icon (a :before) never reaches 'tree.click' event
+		tree.click(function (event) {
+			if (event.target.tagName === "DIV") {
+				$(event.target).children("span").click();
+			}
+		});
 
 		tree.bind('tree.click', function(event) {
 			var node = event.node;
-			Editor().open(node.file);
+			if (node.file)
+				Editor().open(node.file);
+			else
+				tree.tree("toggle", node, false);
 		});
 
 		$("#editor-button-compile")
