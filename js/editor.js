@@ -79,6 +79,7 @@ function Editor() {
 			var label = file.name;
 			var parentNode;
 			var dirs = file.name.split("/");
+			var toOpen = [];
 			if (dirs.length > 1) {
 				label = dirs.pop();
 
@@ -88,14 +89,44 @@ function Editor() {
 						node = _tree.tree('appendNode',
 						                  { label: dirs[i], id: dirs[i]},
 						                  parentNode);
-						_tree.tree('openNode', node);
 					}
 
+					toOpen.push(node);
 					parentNode = node;
 				}
 			}
 
 			_tree.tree('appendNode', { label: label, file: file, id: file.name}, parentNode);
+			for (var j=0; j<toOpen.length; j++)
+				_tree.tree('openNode', toOpen[j], false);
+
+			// Hack time!
+			var content = JSON.parse(_tree.tree('toJson'));
+			content = (function(tree) {
+				var xor = function(a,b) { return !a != !b; };
+				var comp = function(a,b) {
+					// Keep directories above regular files
+					if (xor(a.children, b.children))
+						return a.children ? -1 : 1;
+					else
+						return a.name > b.name ? 1 : (a.name === b.name ? 0 : -1);
+				};
+
+				var sorter = function(level) {
+					level = level.sort(comp);
+					for (var i=0; i<level.length; i++) {
+						if (level[i].children)
+							level[i].children = sorter(level[i].children);
+					}
+
+					return level;
+				};
+
+				return sorter(tree);
+			})(content);
+
+			_tree.tree('loadData', content);
+
 		};
 
 		return function (name, data) {
@@ -261,6 +292,7 @@ function Editor() {
 		tree.tree({
 			data: {},
 			autoOpen: true,
+			saveState: true,
 			slide: false
 		});
 		tree.disableSelection();
