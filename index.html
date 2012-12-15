@@ -26,22 +26,25 @@
 	<script type="text/javascript" src="lib/js/codemirror.js"></script>
 	<script type="text/javascript" src="lib/codemirror/mode/javascript/javascript.js"></script>
 	<script type="text/javascript" src="lib/codemirror/keymap/vim.js"></script>
+	<script type="text/javascript" src="lib/codemirror/keymap/emacs.js"></script>
 
 	<script type="text/javascript" src="js/templates.js"></script>
 	<script type="text/javascript" src="js/config.js"></script>
 	<script type="text/javascript" src="js/app.js"></script>
 	<script type="text/javascript" src="js/editor.js"></script>
+	<script type="text/javascript" src="js/settings.js"></script>
 	<script type="text/javascript">
 		var e;
 		var a;
 		var er;
 		$(document).ready(function() {
+			var app = new App();
+			app.initGL();
+
 			var editor = new Editor();
 			editor.initGUI();
 			editor.fetch(config.files.fetch);
 
-			var app = new App();
-			app.initGL();
 
 			a = app;
 			e = editor;
@@ -51,7 +54,7 @@
 <body>
 
 <div id="editor-dialog-newfile" title="New file">
-	<form>
+	<form action="#">
 		<fieldset class="ui-helper-reset">
 			<label for="filename">File name</label>
 			<input type="text" name="filename" id="editor-dialog-newfile-name"
@@ -72,6 +75,18 @@
 	<div id="editor-toolbar" class="ui-widget-header ui-corner-all">
 		<button id="editor-button-newfile">New file</button>
 		<button id="editor-button-compile">Compile</button>
+		<button id="editor-button-settings">Settings</button>
+
+		<ul id="editor-menu-settings">
+			<li data-submenu="editor-mode"><a href="#">Editor mode</a>
+				<ul>
+					<li data-mode="default"><a href="#"><span class="ui-icon"></span>Default</a></li>
+					<li data-mode="vim"><a href="#"><span class="ui-icon"></span>Vim</a></li>
+					<li data-mode="emacs"><a href="#"><span class="ui-icon"></span>Emacs</a></li>
+				</ul>
+			</li>
+		</ul>
+
 		<div id="editor-toolbar-loader"></div>
 	</div>
 

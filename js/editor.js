@@ -1,4 +1,4 @@
-/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates CodeMirror App */
+/*jslint browser: true smarttabs: true */ /*global config $ jQuery sprintf templates CodeMirror App settings */
 
 function Editor() {
 	"use strict";
@@ -77,7 +77,7 @@ function Editor() {
 
 		var addToTree = function(file) {
 			var label = file.name;
-			var parentNode = undefined;
+			var parentNode;
 			var dirs = file.name.split("/");
 			if (dirs.length > 1) {
 				label = dirs.pop();
@@ -103,6 +103,7 @@ function Editor() {
 			this.name = name;
 			this.data = data;
 
+			// Remove leading "/" from file name
 			if (/^\//.test(this.name))
 				this.name = this.name.substring(1);
 
@@ -144,7 +145,7 @@ function Editor() {
 				_codemirrorDiv = $("div #"+this.id);
 				_codemirror = new CodeMirror(_codemirrorDiv[0], {
 					value: this.file.data,
-					keyMap: "vim",
+					keyMap: settings["editor-mode"],
 					lineNumbers: true,
 					matchBrackets: true
 				});
@@ -158,15 +159,10 @@ function Editor() {
 				return _label.find('li a[href="#'+this.id+'"]').parent().index();
 			}.bind(this);
 
-			if (this.file) {
-				this.label = file.name;
-				this.content = file.data;
-			} else {
-				this.label = newName();
-				this.content = "";
-			}
-
-			addTab();
+			var on_editorModeSetting = function(setting) {
+				if (setting && setting.key === "editor-mode")
+					this.reloadEditor();
+			}.bind(this);
 
 			this.open = function(line, column) {
 				_tabs.tabs("select", index());
@@ -175,7 +171,19 @@ function Editor() {
 					_codemirror.scrollIntoView({line: line, ch: column});
 					// TODO: flash line
 				}
+			};
 
+			/* Reloads the editor embedded in the tab */
+			this.reloadEditor = function() {
+				this.flush();
+
+				_codemirrorDiv.empty();
+				_codemirror = new CodeMirror(_codemirrorDiv[0], {
+					value: this.file.data,
+					keyMap: settings["editor-mode"],
+					lineNumbers: true,
+					matchBrackets: true
+				});
 			};
 
 			/* Flush content of CodeMirror instance to file object */
@@ -193,9 +201,20 @@ function Editor() {
 					Editor().open(f);
 				}
 
+				App().messages.unsubscribe("settings-changed", on_editorModeSetting);
 				_editor.refresh();
-
 			};
+
+			if (this.file) {
+				this.label = file.name;
+				this.content = file.data;
+			} else {
+				this.label = newName();
+				this.content = "";
+			}
+
+			addTab();
+			App().messages.subscribe("settings-changed", on_editorModeSetting);
 		};
 	})();
 
@@ -267,6 +286,69 @@ function Editor() {
 			.click(function() {
 				$("#editor-dialog-newfile").dialog("open");
 			});
+
+		$("#editor-button-settings")
+			.button({
+				text: true,
+				icons: { primary: "ui-icon-gear", secondary: "ui-icon-triangle-1-s" }
+			})
+			.click(function() {
+				var menu = $(this).next().show().position({
+					my: "left top",
+					at: "left bottom",
+					of: this
+				});
+
+				$(document).one("click", function() {
+					menu.menu("collapseAll", null, true);
+					menu.hide();
+				});
+
+				menu.click(function(event) {
+					var item = $(event.target).parents("li").first();
+					var submenu = item[0].getAttribute("data-submenu");
+					if (submenu)
+						return; // Open submenu
+
+					var key = item.parents('[data-submenu]').last();
+					var value;
+					if (key.length) {
+						key = key[0].getAttribute("data-submenu");
+						value = item[0].getAttribute("data-mode");
+						settings.set(key, value);
+
+						menu.menu("collapseAll", null, true);
+						menu.hide();
+					}
+
+					menu.hide();
+				});
+
+				return false;
+			});
+
+		var settingsMenu = $("#editor-button-settings").next().menu().hide();
+		var refreshEditorMode = function() {
+			if (settings["editor-mode"] === this.getAttribute("data-mode")) {
+				$(this).find("span")
+					.addClass("ui-icon-radio-on")
+					.removeClass("ui-icon-radio-off");
+			}
+			else {
+				$(this).find("span")
+					.addClass("ui-icon-radio-off")
+					.removeClass("ui-icon-radio-on");
+			}
+		};
+
+		settingsMenu.find('[data-submenu="editor-mode"] li').each(refreshEditorMode);
+		App().messages.subscribe("settings-changed", function(setting) {
+			if (!setting.key || setting.key !== "editor-mode")
+				return;
+
+			settingsMenu.find('[data-submenu="editor-mode"] li').each(refreshEditorMode);
+		});
+
 
 		var dialog = $("#editor-dialog-newfile")
 			.dialog({
