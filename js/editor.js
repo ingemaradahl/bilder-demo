@@ -28,7 +28,15 @@ function Editor() {
 	files.findByName = makeFinder(files, "name");
 
 	// Find a tab given a file
-	tabs.findByFile = makeFinder(tabs, "file");
+	tabs.findByFile = function (file) {
+		for (var i=0; i<this.length; i++) {
+			if (!this[i])
+				continue;
+
+			if (this[i].file.name === file.name)
+				return this[i];
+		}
+	}.bind(tabs);
 
 	// Find a tab given a tab id
 	tabs.findById = makeFinder(tabs, "id");
@@ -138,11 +146,11 @@ function Editor() {
 			if (/^\//.test(this.name))
 				this.name = this.name.substring(1);
 
-			addToTree(this);
-
 			this.toJSON = function () {
 				return { name: this.name, data: this.data };
 			};
+
+			addToTree(this);
 		};
 	})();
 
@@ -306,8 +314,11 @@ function Editor() {
 
 		tree.bind('tree.click', function(event) {
 			var node = event.node;
-			if (node.file)
-				Editor().open(node.file);
+			if (node.file) {
+				// Since the tree is sorted in such a hacky way, this must be done
+				var file = files.findByName(node.file.name);
+				Editor().open(file);
+			}
 			else
 				tree.tree("toggle", node, false);
 		});
