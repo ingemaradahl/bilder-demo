@@ -190,6 +190,13 @@ function Editor() {
 				});
 
 				_codemirrorDiv.find("> div").addClass("ui-corner-all ui-widget ui-widget-container");
+				_codemirrorDiv.keypress(function(event) {
+					// Ctrl+Return
+					if (event.ctrlKey && event.which === 13) {
+						_editor.compile();
+						event.preventDefault();
+					}
+				});
 
 				_editor.refresh();
 			}.bind(this);
