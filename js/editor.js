@@ -230,6 +230,11 @@ function Editor() {
 					lineNumbers: true,
 					matchBrackets: true
 				});
+				_codemirror.refresh();
+			};
+
+			this.refresh = function() {
+				_codemirror.refresh();
 			};
 
 			/* Flush content of CodeMirror instance to file object */
@@ -297,13 +302,19 @@ function Editor() {
 	};
 
 	this.initGUI = function() {
-		var tabs = $("#editor-tabs");
+		var tabsDiv = $("#editor-tabs");
 		var tree = $("#editor-tree > div");
 
-		if (!tabs.size() || !tree.size())
+		if (!tabsDiv.size() || !tree.size())
 			return;
 
-		tabs.tabs();
+		tabsDiv.tabs({
+			activate: function(event, ui) {
+				var tabId = $(ui.newTab).children("a").attr("href").substring(1);
+				var tab = tabs.findById(tabId);
+				tab.refresh();
+			}
+		});
 		tree.tree({
 			data: {},
 			autoOpen: true,
