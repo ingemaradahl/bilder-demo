@@ -41,7 +41,7 @@
 #editor-toolbar .ui-menu {
 	position: absolute;
 	width: 12em;
-	z-index: 11; // CodeMirror gutter z-index: 10
+	z-index: 11; /* CodeMirror gutter z-index: 10 */
 }
 
 #editor-toolbar-loader {
