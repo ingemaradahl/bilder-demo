@@ -9,7 +9,7 @@ function App() {
 
 	this.error = new ErrorDisplay();
 	this.messages = new MessageBus();
-	this.imgCache = {};
+	this.imgCache = {}; // Cache of WebGL textures
 	this.inputs = new Inputs();
 	this.program = null;
 
@@ -126,6 +126,8 @@ function App() {
 
 	this.buildProgram = function(p) {
 		buildInputGUI();
+		if (this.program)
+			this.program.destroy();
 		this.program = new Program(gl, p);
 		this.messages.post("new-input-controls", this.program.inputs);
 	};
@@ -559,8 +561,22 @@ var Program = (function() {
 		};
 
 		this.destroy = function() {
-			App().unsubscribe("new-gl-image", newImage);
-			// TODO: remove programs from gl and stuff!
+			App().messages.unsubscribe("new-gl-image", newImage);
+
+			for (var name in glPrograms) {
+				if (glPrograms[name])
+					gl.deleteProgram(glPrograms[name]);
+			}
+
+			for (var fb in framebuffers) {
+				var framebuffer = framebuffers[fb];
+				gl.deleteTexture(framebuffer.texture);
+				gl.deleteFramebuffer(framebuffer);
+			}
+
+			glPrograms = null;
+			inputValues = null;
+			framebuffers = null;
 		};
 
 		// Compile shaders
