@@ -14,12 +14,75 @@
 	padding: 0.4em;
 }
 
-#app #app-inputs > div {
-	background-color: #fff;
-}
-
-#app #app-inputs > h3 {
+#app #app-inputs h3 {
 	padding: 0.4em;
 	height: 1.1em;
 	color: #459e00;
+}
+
+#app #app-inputs-widgets {
+	overflow: auto;
+}
+
+#app .app-input {
+	width: 250px;
+	background-color: #fff;
+	padding: 0.3em 0.5em 0.8em 0.5em;
+	margin: 0.4em 0.4em 0.4em 0em;
+	float: left;
+}
+
+#app .app-input img.preview {
+	max-height: 150px;
+	max-width: 240px;
+	display: block;
+	margin: 0.8em auto 0 auto;
+}
+
+#app .app-input .app-input-title {
+	margin-bottom: 0.4em;
+	font-weight: bold;
+}
+
+#app .app-input .app-input-name {
+	float: left;
+	color: #459e00;
+}
+
+#app .app-input .app-input-type {
+	float: left;
+	margin-left: 2em;
+}
+
+#app .app-input .app-input-options {
+	float: right;
+	font-size: 80%;
+}
+
+#app .app-input .app-input-options button {
+	margin-left: 0.4em
+}
+
+.app-input-body .textbox {
+	padding: 1px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.app-input-body .textbox br {
+	display: none;
+}
+
+.app-input-body .textbox * {
+	display: inline;
+	white-space: nowrap;
+}
+
+.app-input-body .input-body-title {
+	font-weight: bold;
+	margin-bottom: 0.4em;
+}
+
+.vector-body .textbox {
+	margin-bottom: 0.4em;
 }

@@ -98,7 +98,13 @@ function App() {
 				callback({url: url, texture: texture});
 		}.bind(this);
 
+		var onerror = function() {
+			App().error.post('Unable to load image "' + image.src + '".');
+			image.src = "";
+		}.bind(this);
+
 		image.onload = finalize;
+		image.onerror = onerror;
 		image.src = url;
 	};
 
@@ -473,7 +479,7 @@ var Program = (function() {
 				var type = this.inputs[name];
 				var value = inputs[name];
 
-				if (!value)
+				if (value === undefined || value === null)
 					continue;
 
 				switch (type) {
@@ -552,55 +558,107 @@ function Inputs() {
 	}.bind(this);
 
 	/*
+	 * Strips HTML tags from a string.
+	 */
+	var stripHTML = function(html) {
+		var tmp = $('<div/>');
+		tmp.html(html);
+		return tmp[0].textContent||tmp[0].innerText;
+	};
+
+	/*
+	 * Input widget box
+	 */
+	var createBox = function(name, type, extra_options, elems) {
+		// input box
+		var outer_div = $('<div class="app-input ui-widget-border ui-corner-all ui-widget"/>');
+
+		// options
+		var options = $('<div class="app-input-options"></div>');
+		options.append($('<button class="option-reset">&nbsp;</button>').button({icons: {primary: "ui-icon-trash"}, text: false}));
+		for (var opt in extra_options)
+			options.prepend(extra_options[opt]);
+
+		// title
+		var title = $('<div class="app-input-title"/>');
+		title.append('<span class="app-input-name">' + name + '</span>');
+		title.append(options);
+		title.append('<span class="app-input-type">' + type + '</span>');
+		title.append('<div style="clear: both;"/>');
+
+		// body
+		var body = $('<div class="app-input-body"></body>');
+
+		for (var elem in elems)
+			body.append(elems[elem]);
+
+		outer_div.append(title);
+		outer_div.append(body);
+
+		return outer_div;
+	};
+
+	/*
 	 * All input widgets.
 	 */
 	var textureWidget = function(name) {
-		var div = $('<div/>');
-		div.append(name + ": ");
+		var options = [$('<button class="option-local">&nbsp;</button>').button({icons: {primary: "ui-icon-folder-open"}, text: false})];
 
-		input_values[name] = "images/lena.jpg";
+		var body = [];
+		body.push('<div class="input-body-title">url</div>');
 
-		// on update
+		// input box
+		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + 'images/lena.png' + '</p></div>');
+
+		// preview image
+		var preview = $('<img class="preview ui-widget-content ui-corner-all"/>');
+
+		// initial value
+		input_values[name] = "images/lena.png";
+		preview.attr('src', "images/lena.png");
+
+		// events (on change)
 		var onUpdate = function() {
-			input_values[name] = this.value;
+			var value = stripHTML(input.html());
+			input_values[name] = value;
+			preview.attr('src', value);
 			sendInputs();
 		};
+		input.change(onUpdate);
 
-		// create the input box.
-		div.append($('<input/>', {
-				type: 'text',
-				value: 'images/lena.jpg',
-				name: 'uniform_' + name
-			}).addClass('uniform_input').change(onUpdate));
+		body.push(input);
+		body.push(preview);
 
-		return div;
+		return createBox(name, "texture", options, body);
 	};
-	var numberWidget = function(name) {
-		var div = $('<div/>');
-		div.append(name + ": ");
+	var numberWidget = function(type) {
+		return function(name) {
+			// input box
+			var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + ((type == "float") ? '0.0' : '0') + '</p></div>');
 
-		input_values[name] = Number("0.0"); // TODO: Different depending on int or float.
+			// initial value
+			if (type == "float")
+				input_values[name] = 0.0;
+			else
+				input_values[name] = 0;
 
-		// on update
-		var onUpdate = function() {
-			input_values[name] = Number(this.value);
-			sendInputs();
+			// events (on change)
+			var onUpdate = function() {
+				var value = stripHTML(input.html());
+				if (type == "float")
+					input_values[name] = parseFloat(value);
+				else
+					input_values[name] = parseInt(value, 10);
+				sendInputs();
+			};
+			input.change(onUpdate);
+
+			return createBox(name, type, [], [input]);
 		};
-
-		// create the input box.
-		div.append($('<input/>', {
-				type: 'text',
-				value: '0.0',
-				name: 'uniform_' + name
-			}).addClass('uniform_input').change(onUpdate));
-
-		return div;
 	};
 	var vectorWidget = function(size) {
 		return function(name) {
-			var div = $('<div/>');
-			div.append(name + ": ");
-
+			// events (on change)
 			var field_values = [];
 
 			var updateValues = function() {
@@ -608,37 +666,43 @@ function Inputs() {
 				input_values[name] = fun.createFrom.apply(fun, field_values);
 				sendInputs();
 			};
-
-			// on update
 			var onUpdate = function(index) {
 				return function() {
-					field_values[index] = Number(this.value);
+					field_values[index] = this.textContent;
 					updateValues();
 				};
 			};
 
+			var body = [];
+			// input boxes
+			var names = {0: 'x / r / s',
+							 1: 'y / g / t',
+							 2: 'z / b / p',
+							 3: 'w / a / q' };
 			for (var i=0; i<size; i++) {
-				// set inital value
+				var input_body = $('<div><div class="input-body-title">' + names[i] + '</div></div>');
+				var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>0.0</p></div>');
+
+				// initial value
 				field_values[i] = 0.0;
 
-				// create the input box.
-				div.append($('<input/>', {
-						type: 'text',
-						value: '0.0',
-						name: 'uniform_' + name
-					}).addClass('uniform_input').change(onUpdate(i)));
+				input.change(onUpdate(i));
+				input_body.append(input);
+				// add space between inputs (but not for the last).
+				if (i < (size-1))
+					input_body.append('<div style="height: 0.8em;"/>');
+				body.push(input_body);
 			}
 
-			input_values[name] = field_values;
 			updateValues();
 
-			return div;
+			return createBox(name, "vec" + size, [], body);
 		};
 	};
 	var widgets = {
 			'texture': textureWidget,
-			'float': numberWidget,
-			'int': numberWidget,
+			'float': numberWidget("float"),
+			'int': numberWidget("int"),
 			'vec2': vectorWidget(2),
 			'vec3': vectorWidget(3),
 			'vec4': vectorWidget(4)
@@ -656,11 +720,14 @@ function Inputs() {
 
 		// create widgets for all the inputs.
 		for (var name in ins) {
-			if (ins[name] in widgets)
-				panel.append(widgets[ins[name]](name));
-			else
-				panel.append('unhandled input type: ' + ins[name] + "<br/>");
+			panel.append(widgets[ins[name]](name));
 		}
+
+		// sort them after height.
+		var sortByHeight = function(a, b) {
+			return $(a).height() < $(b).height();
+		};
+		$("#app-inputs-widgets > div").sort(sortByHeight).appendTo("#app-inputs-widgets");
 
 		// and do an initial input update.
 		sendInputs();
@@ -761,3 +828,19 @@ function MessageBus() {
 		}
 	};
 }
+
+/*
+ * make contentEditable elements trigger change-event.
+ */
+$('[contenteditable]').live('focus', function() {
+    var $this = $(this);
+    $this.data('before', $this.html());
+    return $this;
+}).live('blur keyup paste', function() {
+    var $this = $(this);
+    if ($this.data('before') !== $this.html()) {
+        $this.data('before', $this.html());
+        $this.trigger('change');
+    }
+    return $this;
+});
