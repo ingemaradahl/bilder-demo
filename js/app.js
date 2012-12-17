@@ -179,7 +179,8 @@ var Program = (function() {
 
 		this.inputs = {}; // { name: type }
 		var inputValues = {}; // { name: value }
-		var framebuffers = {}; // { name: gl.texture }
+		var framebuffers = {}; // { name: gl.frameBuffer }
+		var pipeline = []; // Order of execution: [ {shader: string, output: string } ]
 
 		var glPrograms = {};
 		var graph = program.graph;
@@ -256,7 +257,7 @@ var Program = (function() {
 			var inputs = {};
 
 			var find = function(g) {
-				if (graph.filename === shader) {
+				if (g.filename === shader) {
 					for (var i=0; i<g.inputs.length; i++) {
 						var input = g.inputs[i];
 
@@ -361,6 +362,33 @@ var Program = (function() {
 			return framebuffers;
 		};
 
+		/*
+		 * Creates a pipeline of shaders; essentially a list determening in
+		 * which order shaders are to be executed
+		 */
+		createPipeline = function(graph) {
+			var order = [];
+			var output = null;
+
+			var collect = function(graph) {
+				var shader = graph.filename;
+				order.unshift({shader: shader, output: output});
+
+				for (var i=0; i<graph.inputs.length; i++) {
+					var input = graph.inputs[i];
+
+					if (input.type === "node") {
+						output = input.name;
+						collect(input.node);
+					}
+				}
+			};
+
+			collect(graph);
+
+			return order;
+		};
+
 		var newImage = function (img) {
 			if (!img || !img.url || !img.texture)
 				return;
@@ -420,14 +448,25 @@ var Program = (function() {
 			gl.vertexAttribPointer(program.positionAttrib, 2, gl.FLOAT, false, 0, 0);
 
 			for (var name in program.uniforms) {
-				if (!(name in inputValues)) {
+				var resource;
+				var type;
+				if (name in inputValues) {
+					resource = inputValues;
+					type = "lol";
+				}
+				else if (name in framebuffers) {
+					resource = framebuffers;
+					type = "framebuffer";
+				}
+				else {
 					App().error.post(sprintf("Input value '%s' not set", name));
 					return;
 				}
 
 				var uniform = program.uniforms[name];
 				var binder = null;
-				value = inputValues[name];
+
+				value = resource[name];
 				switch(uniform.type) {
 				case "vec2":
 					binder = gl.uniform2fv.bind(gl);
@@ -444,7 +483,7 @@ var Program = (function() {
 				case "texture":
 					value = textureUnit++;
 					gl.activeTexture(gl.TEXTURE0 + value);
-					gl.bindTexture(gl.TEXTURE_2D, inputValues[name]);
+					gl.bindTexture(gl.TEXTURE_2D, (type === "framebuffer") ? resource[name].texture : resource[name]);
 					/* falls through */
 				case "int":
 					binder = gl.uniform1i.bind(gl);
@@ -461,8 +500,10 @@ var Program = (function() {
 		}.bind(this);
 
 		this.run = function() {
-			// TEMP
-			runShader(graph.filename);
+			for (var i=0; i<pipeline.length; i++) {
+				var pass = pipeline[i];
+				runShader(pass.shader, pass.output);
+			}
 		};
 
 		this.setInputs = function(inputs) {
@@ -527,12 +568,16 @@ var Program = (function() {
 			var name = program.shaders[i].name;
 			glPrograms[name] = compileShader(program.shaders[i]);
 
-			if (!glPrograms[name])
+			if (!glPrograms[name]) {
+				// Abort!
+				this.destroy();
 				return;
+			}
 		}
 
 		this.inputs = collectInputs(graph);
 		framebuffers = createRenderTargets(graph);
+		pipeline = createPipeline(graph);
 
 		App().messages.subscribe("new-gl-image", newImage);
 		//App().messages.post("new-input-controls", this.inputs);
