@@ -31,7 +31,7 @@ ul.jqtree-tree .jqtree-toggler {
     border-bottom: none;
     color: transparent;
 
-    // Based of jquery ui css
+    /* Based of jquery ui css */
     top: -0.1em;
     width: 16px;
     height: 16px;
@@ -77,27 +77,15 @@ li.jqtree-folder ul.jqtree_common li:not(.jqtree-closed):not(.jqtree-folder).jqt
     content: "File";
     color: transparent;
 
-    // Based of jquery ui css
-    margin-left: -16px;
+    /* Based of jquery ui css */
     width: 16px;
     height: 16px;
     background-image: url(../lib/css/images/ui-icons_808080_256x240.png);
     background-position: -32px -96px;
 }
 
-/*
- *ul.jqtree-tree span:not(.jqtree-toggler).jqtree-title:before {
- *    background-color: green;
- *    margin-left: 10px;
- *    content: "apa";
- *}
- */
-
 ul.jqtree-tree .jqtree-toggler.jqtree-closed {
     background-position: 0 -96px;
-	/*
-     *background-position: 0 0;
-	 */
 }
 
 span.jqtree-dragging {
