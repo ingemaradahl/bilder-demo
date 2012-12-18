@@ -1,5 +1,5 @@
 Color blur(Image img_in, Float x, Float y) {
-  return (img_in(x-1.0, y) * img_in(x, y) * img_in(x+1.0, y) * img_in(x,y))/4.0;
+  return Color((img_in(x-0.01, y).rgb + img_in(x, y).rgb + img_in(x+0.01, y).rgb)/3.0, img_in(x,y).a);
 }
 
 Color main(Float x, Float y) {

@@ -127,7 +127,7 @@ function App() {
 	};
 
 	this.resolution = function() {
-		return vec2.createFrom(canvas.width(), canvas.height());
+		return vec2.createFrom(canvas[0].width, canvas[0].height);
 	};
 
 	this.buildProgram = function(p) {
@@ -426,6 +426,7 @@ var Program = (function() {
 			var program;
 			var textureUnit = 0;
 			var value;
+			var res;
 
 			if (typeof(shader) === "string")
 				program = glPrograms[shader];
@@ -440,15 +441,15 @@ var Program = (function() {
 				if (!gl.isFramebuffer(output))
 					throw "Bad framebuffer";
 
-				gl.viewport(0, 0, config.framebufferSize, config.framebufferSize);
+				res = vec2.createFrom(config.framebufferSize, config.framebufferSize);
 			}
 			else {
 				output = null;
-				var res = App().resolution();
-				gl.viewport(0, 0, res[0], res[1]);
+				res = App().resolution();
 			}
 
 			gl.bindFramebuffer(gl.FRAMEBUFFER, output);
+			gl.viewport(0, 0, res[0], res[1]);
 			gl.clear(gl.COLOR_BUFFER_BIT);
 			gl.useProgram(program);
 
@@ -460,11 +461,15 @@ var Program = (function() {
 				var type;
 				if (name in inputValues) {
 					resource = inputValues;
-					type = "lol";
+					type = "";
 				}
 				else if (name in framebuffers) {
 					resource = framebuffers;
 					type = "framebuffer";
+				}
+				else if (name === config.glsl.resolutionUniform) {
+					resource = {};
+					resource[config.glsl.resolutionUniform] = res;
 				}
 				else {
 					App().error.post(sprintf("Input value '%s' not set", name));
@@ -558,9 +563,6 @@ var Program = (function() {
 					break;
 				}
 			}
-
-			// Add fl_Resolution input
-			inputValues[config.glsl.resolutionUniform] = App().resolution();
 
 			if (!mustWait)
 				this.run(inputValues);
