@@ -1,0 +1,7 @@
+Float inc(Float v) {
+	return v+0.1;
+};
+
+Color main(Float x, Float y) {
+	return Color(0.3, 0.1, inc(y), inc(inc(x)));
+}

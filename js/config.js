@@ -1,13 +1,25 @@
-/*jslint smarttabs:true */
+/*jslint smarttabs:true laxcomma: true*/
 
 var config = {
 	compilerURL: "cmp/cgicomp",
 	newName : "untitled-%d",
 	framebufferSize : 512,
 	files: {
-		defaultFile: "bad/Issue6.fl",
+		defaultFile: "bad/Issue21.fl",
 		root: "predefined/",
-		fetch: ["tests/sample.fl", "src/example.fl", "src/gaussion.fl", "src/simple.fl", "bad/Issue4.fl", "bad/Issue6.fl", "bad/Issue17.fl"]
+		fetch: [
+			  "tests/sample.fl"
+			, "tests/blur.fl"
+
+			, "src/example.fl"
+			, "src/gaussion.fl"
+			, "src/simple.fl"
+
+			, "bad/Issue4.fl"
+			, "bad/Issue6.fl"
+			, "bad/Issue17.fl"
+			, "bad/Issue21.fl"
+		]
 	},
 	glsl: {
 		precision: "highp",
