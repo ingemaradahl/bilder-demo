@@ -656,13 +656,13 @@ function Inputs() {
 	/*
 	 * Input widget box
 	 */
-	var createBox = function(name, type, extra_options, elems) {
+	var createBox = function(name, type, extra_options, elems, resetfun) {
 		// input box
 		var outer_div = $('<div class="app-input ui-widget-border ui-corner-all ui-widget"/>');
 
 		// options
 		var options = $('<div class="app-input-options"></div>');
-		options.append($('<button class="option-reset">&nbsp;</button>').button({icons: {primary: "ui-icon-trash"}, text: false}));
+		options.append($('<button class="option-reset">&nbsp;</button>').button({icons: {primary: "ui-icon-trash"}, text: false}).click(resetfun));
 		for (var opt in extra_options)
 			options.prepend(extra_options[opt]);
 
@@ -689,12 +689,14 @@ function Inputs() {
 	 * All input widgets.
 	 */
 	var textureWidget = function(name) {
+		var default_value = 'images/lena.png';
+
 		var options = [$('<button class="option-local">&nbsp;</button>').button({icons: {primary: "ui-icon-folder-open"}, text: false})];
 
 		var body = [];
 		body.push('<div class="input-body-title">url</div>');
 
-		var value = getOldValue(name, 'images/lena.png');
+		var value = getOldValue(name, default_value);
 
 		// input box
 		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
@@ -719,11 +721,19 @@ function Inputs() {
 		body.push(input);
 		body.push(preview);
 
-		return createBox(name, "texture", options, body);
+		// reset function
+		var reset = function() {
+			input.html('<p>' + default_value + '</p>');
+			input.trigger('change');
+		};
+
+		return createBox(name, "texture", options, body, reset);
 	};
 	var numberWidget = function(type) {
 		return function(name) {
-			var value = getOldValue(name, "0");
+			var default_value = "0";
+
+			var value = getOldValue(name, default_value);
 
 			// input box
 			var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
@@ -746,15 +756,23 @@ function Inputs() {
 			};
 			input.change(onUpdate);
 
-			return createBox(name, type, [], [input]);
+			// reset function
+			var reset = function() {
+				input.html('<p>' + default_value + '</p>');
+				input.trigger('change');
+			};
+
+			return createBox(name, type, [], [input], reset);
 		};
 	};
 	var vectorWidget = function(size) {
 		return function(name) {
+			var default_value = [0,0,0,0];
+
 			// events (on change)
 			var field_values = [];
 
-			var old_values = getOldValue(name, [0,0,0,0]);
+			var old_values = getOldValue(name, default_value);
 
 			var updateValues = function() {
 				var fun = {2: vec2, 3: vec3, 4: vec4}[size];
@@ -770,11 +788,13 @@ function Inputs() {
 			};
 
 			var body = [];
+			var boxes = [];
 			// input boxes
 			var names = {0: 'x', 1: 'y', 2: 'z', 3: 'w'};
 			for (var i=0; i<size; i++) {
 				var input_body = $('<div><div class="input-body-title">' + names[i] + '</div></div>');
 				var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + old_values[i] + '</p></div>');
+				boxes.push(input);
 
 				// initial value
 				field_values[i] = old_values[i];
@@ -789,7 +809,15 @@ function Inputs() {
 
 			updateValues();
 
-			return createBox(name, "vec" + size, [], body);
+			// reset function
+			var reset = function() {
+				for (var i=0; i<size; i++) {
+					boxes[i].html('<p>' + default_value[i] + '</p>');
+					boxes[i].trigger('change');
+				}
+			};
+
+			return createBox(name, "vec" + size, [], body, reset);
 		};
 	};
 	var widgets = {
