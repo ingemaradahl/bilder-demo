@@ -612,12 +612,24 @@ function Inputs() {
 	"use strict";
 
 	var input_values = {};
+	var boxed_values = {};
 
 	/*
 	 * Sends all the input values.
 	 */
 	var sendInputs = function() {
 		App().messages.post("new-inputs", input_values);
+	}.bind(this);
+
+	/*
+	 * Get old value
+	 */
+	var getOldValue = function(name, def) {
+		var old_values = boxed_values || {};
+		if (name in old_values)
+			return old_values[name];
+		else
+			return def;
 	}.bind(this);
 
 	/*
@@ -670,20 +682,23 @@ function Inputs() {
 		var body = [];
 		body.push('<div class="input-body-title">url</div>');
 
+		var value = getOldValue(name, 'images/lena.png');
+
 		// input box
-		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + 'images/lena.png' + '</p></div>');
+		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
 
 		// preview image
 		var preview = $('<img class="preview ui-widget-content ui-corner-all"/>');
 
 		// initial value
-		input_values[name] = "images/lena.png";
-		preview.attr('src', "images/lena.png");
+		input_values[name] = value;
+		preview.attr('src', value);
 
 		// events (on change)
 		var onUpdate = function() {
 			var value = stripHTML(input.html());
 			input_values[name] = value;
+			boxed_values[name] = value;
 			preview.attr('src', value);
 			sendInputs();
 		};
@@ -696,18 +711,21 @@ function Inputs() {
 	};
 	var numberWidget = function(type) {
 		return function(name) {
+			var value = getOldValue(name, "0");
+
 			// input box
-			var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + ((type == "float") ? '0.0' : '0') + '</p></div>');
+			var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
 
 			// initial value
 			if (type == "float")
-				input_values[name] = 0.0;
+				input_values[name] = parseFloat(value);
 			else
-				input_values[name] = 0;
+				input_values[name] = parseInt(value, 10);
 
 			// events (on change)
 			var onUpdate = function() {
 				var value = stripHTML(input.html());
+				boxed_values[name] = value;
 				if (type == "float")
 					input_values[name] = parseFloat(value);
 				else
@@ -724,30 +742,30 @@ function Inputs() {
 			// events (on change)
 			var field_values = [];
 
+			var old_values = getOldValue(name, [0,0,0,0]);
+
 			var updateValues = function() {
 				var fun = {2: vec2, 3: vec3, 4: vec4}[size];
 				input_values[name] = fun.createFrom.apply(fun, field_values);
-				sendInputs();
+				boxed_values[name] = field_values;
 			};
 			var onUpdate = function(index) {
 				return function() {
 					field_values[index] = this.textContent;
 					updateValues();
+					sendInputs();
 				};
 			};
 
 			var body = [];
 			// input boxes
-			var names = {0: 'x / r / s',
-							 1: 'y / g / t',
-							 2: 'z / b / p',
-							 3: 'w / a / q' };
+			var names = {0: 'x', 1: 'y', 2: 'z', 3: 'w'};
 			for (var i=0; i<size; i++) {
 				var input_body = $('<div><div class="input-body-title">' + names[i] + '</div></div>');
-				var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>0.0</p></div>');
+				var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + old_values[i] + '</p></div>');
 
 				// initial value
-				field_values[i] = 0.0;
+				field_values[i] = old_values[i];
 
 				input.change(onUpdate(i));
 				input_body.append(input);
@@ -776,7 +794,7 @@ function Inputs() {
 	 */
 	this.addInputs = function(ins) {
 		var panel = $("#app-inputs-widgets");
-		// TODO: If there have been no changes - store the old values.
+
 		// clean up.
 		input_values = {};
 		panel.html("");
