@@ -350,6 +350,19 @@ function Editor() {
 				Editor().compile();
 			});
 
+		if (config.debug) {
+			var dump = $("<button>Dump</button>");
+			dump.insertAfter($("#editor-button-compile"));
+			dump.button({
+				text: true,
+				icons: { primary: "ui-icon-lightbulb"}
+			})
+			.click(function() {
+				if (App().program)
+					App().program.debug();
+			});
+		}
+
 		$("#editor-button-newfile")
 			.button({
 				text: true,

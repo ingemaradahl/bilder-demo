@@ -2,6 +2,7 @@
 
 var config = {
 	compilerURL: "cmp/cgicomp",
+	debug: false,
 	newName : "untitled-%d",
 	framebufferSize : 512,
 	files: {
