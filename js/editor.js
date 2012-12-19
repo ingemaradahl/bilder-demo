@@ -357,10 +357,13 @@ function Editor() {
 				text: true,
 				icons: { primary: "ui-icon-lightbulb"}
 			})
-			.click(function() {
-				if (App().program)
-					App().program.debug();
-			});
+			.click((function() {
+				var pass = 0;
+				return function() {
+					if (App().program)
+						App().program.debug(pass++);
+				};
+			})());
 		}
 
 		$("#editor-button-newfile")

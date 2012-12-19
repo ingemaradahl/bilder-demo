@@ -587,17 +587,14 @@ var Program = (function() {
 			framebuffers = null;
 		};
 
-		this.debug = (function () {
-			var pass = 0;
-			return function() {
-				for (var i=0; i<program.shaders.length; i++) {
-					var name = program.shaders[i].name;
-					var src = program.shaders[i].shader;
+		this.debug = function(pass) {
+			for (var i=0; i<program.shaders.length; i++) {
+				var name = program.shaders[i].name;
+				var src = program.shaders[i].shader;
 
-					Editor().newFile(sprintf("debug/%d_%s", pass++, name), src);
-				}
-			};
-		})();
+				Editor().newFile(sprintf("debug/%d_%s", pass, name), src);
+			}
+		};
 
 		// Compile shaders
 		for (var i=0; i<program.shaders.length; i++) {
