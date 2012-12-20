@@ -13,7 +13,7 @@ var config = {
 			, "tests/blur.fl"
 
 			, "src/example.fl"
-			, "src/gaussion.fl"
+			, "src/gaussian.fl"
 			, "src/simple.fl"
 
 			, "bad/Issue4.fl"
