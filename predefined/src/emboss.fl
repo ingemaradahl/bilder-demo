@@ -1,0 +1,13 @@
+Color main(Float x, Float y)
+{
+	external Image img;
+
+	pixelwise Color emboss(Float x, Float y)
+	{
+		Color sum = img(x-1.0, y-1.0)*0.5 - img(x, y)*0.25 - img(x+1.0, y+1.0)*0.25;
+
+		return Color(sum.rgb  + Vec3(0.5), 1.0);
+	};
+	
+	return emboss(x, y);
+}
