@@ -857,7 +857,7 @@ function ErrorDisplay() {
 	var errors = [];
 
 	var nl2br = function(str) {
-		return str.replace(/\n/, "</br>");
+		return str.replace(/\n/g, "<br>");
 	};
 
 	var ErrorMessage = function(str, type) {
