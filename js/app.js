@@ -686,14 +686,12 @@ function Inputs() {
 	 * All input widgets.
 	 */
 	var textureWidget = function(name) {
-		var default_value = 'images/lena.png';
-
 		var options = [$('<button class="option-local">&nbsp;</button>').button({icons: {primary: "ui-icon-folder-open"}, text: false})];
 
 		var body = [];
 		body.push('<div class="input-body-title">url</div>');
 
-		var value = getOldValue(name, default_value);
+		var value = getOldValue(name, config.defaultImage);
 
 		// input box
 		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
@@ -720,7 +718,7 @@ function Inputs() {
 
 		// reset function
 		var reset = function() {
-			input.html('<p>' + default_value + '</p>');
+			input.html('<p>' + config.defaultImage + '</p>');
 			input.trigger('change');
 		};
 

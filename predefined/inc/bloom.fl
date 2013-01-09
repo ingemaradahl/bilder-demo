@@ -1,0 +1,36 @@
+import "inc/gaussian.fl";
+
+Color brightPass(Image in, Float cutoff, Float x, Float y) {
+	Color c = in(x,y);
+
+	if (length(c) > cutoff)
+		return c;
+	else
+		return Color(0.0, 0.0, 0.0, 1.0);
+}
+
+Color exposure(Color c, Float amount) {
+	c = 1.0 - exp((0.0 - c) * amount);
+	return Vec4(c.rgb, 1.0);
+}
+
+Color exposure(Image img, Float amount, Float x, Float y) {
+	return exposure(img(x,y), amount);
+}
+
+Color bloom(Image img, Float x, Float y) {
+	//const Float cutoff = 1.6;
+	//const Float ex = 1.9;
+
+	return bloom(img, 1.6, 1.9, x, y);
+}
+
+Color bloom(Image img, Float cutoff, Float expos, Float x, Float y) {
+	// Isolate bright parts
+	Image bright = brightPass(img, cutoff);
+
+	// Blur and brighten
+	Image blurred = exposure(gaussianBlur(bright, 1.0), expos);
+
+	return img(x,y) + blurred(x,y);
+}

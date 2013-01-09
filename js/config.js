@@ -2,19 +2,22 @@
 
 var config = {
 	compilerURL: "cmp/cgicomp",
-	debug: false,
+	debug: true,
 	newName : "untitled-%d",
 	framebufferSize : 512,
+	defaultImage: "images/factory.jpg",
 	files: {
-		defaultFile: "bad/Issue21.fl",
+		defaultFile: "tests/bloom.fl",
 		root: "predefined/",
 		fetch: [
 			  "tests/sample.fl"
-			, "tests/blur.fl"
+			, "tests/bloom.fl"
 
 			, "src/example.fl"
-			, "src/gaussian.fl"
 			, "src/simple.fl"
+
+			, "inc/gaussian.fl"
+			, "inc/bloom.fl"
 
 			, "bad/Issue4.fl"
 			, "bad/Issue6.fl"

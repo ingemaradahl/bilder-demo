@@ -1,0 +1,7 @@
+import "inc/bloom.fl";
+
+Color main(Float x, Float y) {
+	external Image img_in;
+
+	return bloom(img_in, x, y);
+}
