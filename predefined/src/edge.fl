@@ -1,0 +1,8 @@
+import "inc/edge.fl";
+
+Color main(Float x, Float y)
+{
+	external Image image_in;
+
+	return edge(image_in, x, y);
+}

@@ -15,9 +15,15 @@ var config = {
 
 			, "src/example.fl"
 			, "src/simple.fl"
+			, "src/emboss.fl"
+			, "src/edge.fl"
+			, "src/gaussian.fl"
+			, "src/bilateral.fl"
 
 			, "inc/gaussian.fl"
 			, "inc/bloom.fl"
+			, "inc/emboss.fl"
+			, "inc/edge.fl"
 
 			, "bad/Issue4.fl"
 			, "bad/Issue6.fl"

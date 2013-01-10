@@ -1,0 +1,8 @@
+import "inc/gaussian.fl";
+
+Color main(Float x, Float y) {
+  external Image img;
+
+  return gaussianBlur(img, 1.0, x, y);
+}
+

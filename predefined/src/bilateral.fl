@@ -1,0 +1,40 @@
+#define RADIUS 3.0
+
+pixelwise Color bilateral(Image img, Float stdDev, Float x, Float y)
+{
+	Float gaussianWeight(Float o_x, Float o_y, Float x, Float y)
+	{
+		Float dist = distance(Vec2(o_x, o_y), Vec2(x, y));
+		return (1.0/(sqrt(stdDev)*1.0))*exp(-pow(dist/RADIUS,2.0)/(2.0*stdDev));
+	};
+
+	Color center = Color(img(x, y).rgb, 1.0);
+	Color result = center;
+	Float normalization = 1.0;
+	
+	for (Float j=-RADIUS; j <= RADIUS; j++) {
+		for (Float i=-RADIUS; i <= RADIUS; i++) {
+			Color sample = Color(img(x+i, y+j).rgb, 1.0);
+			
+			// weights
+			Float closeness = 1.0 - distance(sample.rgb, center.rgb) / length(Vec4(1.0));
+			Float sampleWeight = closeness * gaussianWeight(x+i, y+j, x, y) / (RADIUS*RADIUS);
+
+			result += sample * sampleWeight;
+			normalization += sampleWeight;
+		}
+	}
+
+	return Color((result / normalization).rgb, 1.0);
+}
+
+Color main(Float x, Float y)
+{
+	external Image img_in;
+	external Float stdDev;
+
+	Image blurred = bilateral(img_in, stdDev);
+
+	return blurred(x, y);
+}
+
