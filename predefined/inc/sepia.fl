@@ -1,0 +1,6 @@
+import "inc/grayscale.fl";
+
+Color sepia(Image img, Float x, Float y)
+{
+  	return Vec4(grayscale(img(x, y)).rgb * Vec3(1.2, 1.0, 0.8), 1.0);
+}

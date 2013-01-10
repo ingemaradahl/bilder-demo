@@ -1,0 +1,8 @@
+import "inc/sepia.fl";
+
+Color main(Float x, Float y)
+{
+	external Image img;
+
+	return sepia(img, x, y);
+}

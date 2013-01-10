@@ -19,11 +19,14 @@ var config = {
 			, "src/edge.fl"
 			, "src/gaussian.fl"
 			, "src/bilateral.fl"
+			, "src/sepia.fl"
 
 			, "inc/gaussian.fl"
 			, "inc/bloom.fl"
 			, "inc/emboss.fl"
 			, "inc/edge.fl"
+			, "inc/sepia.fl"
+			, "inc/grayscale.fl"
 
 			, "bad/Issue4.fl"
 			, "bad/Issue6.fl"

@@ -1,3 +1,5 @@
+import "inc/grayscale.fl";
+
 Color level(Color color_in, Color levels, Float inBlack, Float inWhite, Float outBlack, Float outWhite, Color inGamma)
 {
   return pow((color_in - inBlack) / (inWhite - inBlack), inGamma) * (outWhite - outBlack) + outBlack;
@@ -20,12 +22,6 @@ Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Fl
 
   //return input_img(p+center/input_img.size()); // Implicit uncurry
     return input_img(p+center/Vec2(800.0, 600.0));
-}
-
-Color grayscale(Color color_in)
-{
-  // ITU Rec 709 color conversion standard
-  return Vec4(Vec3(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb)), color_in.a);
 }
 
 Color main(Float x, Float y)
