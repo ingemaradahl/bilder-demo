@@ -9,15 +9,6 @@ Color brightPass(Image in, Float cutoff, Float x, Float y) {
 		return Color(0.0, 0.0, 0.0, 1.0);
 }
 
-Color exposure(Color c, Float amount) {
-	c = 1.0 - exp((0.0 - c) * amount);
-	return Vec4(c.rgb, 1.0);
-}
-
-Color exposure(Image img, Float amount, Float x, Float y) {
-	return exposure(img(x,y), amount);
-}
-
 Color bloom(Image img, Float x, Float y) {
 	//const Float cutoff = 1.6;
 	//const Float ex = 1.9;
