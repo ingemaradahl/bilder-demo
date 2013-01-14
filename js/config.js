@@ -21,12 +21,11 @@ var config = {
 			, "src/bilateral.fl"
 			, "src/sepia.fl"
 
+			, "inc/colors.fl"
 			, "inc/gaussian.fl"
 			, "inc/bloom.fl"
 			, "inc/emboss.fl"
 			, "inc/edge.fl"
-			, "inc/sepia.fl"
-			, "inc/grayscale.fl"
 
 			, "bad/Issue4.fl"
 			, "bad/Issue6.fl"

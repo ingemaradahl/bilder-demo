@@ -1,4 +1,4 @@
-import "inc/sepia.fl";
+import "inc/colors.fl";
 
 Color main(Float x, Float y)
 {

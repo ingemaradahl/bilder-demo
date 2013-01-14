@@ -1,8 +1,17 @@
 import "inc/edge.fl";
+import "inc/colors.fl";
 
 Color main(Float x, Float y)
 {
 	external Image image_in;
 
-	return edge(image_in, x, y);
+	Image sbl = sobel(image_in);
+	Image smpl = edge(image_in);
+
+	if (x < 0.5)
+		return smpl(x,y);
+	else if (x == 0.5)
+		return red;
+	else
+		return sbl(x,y);
 }

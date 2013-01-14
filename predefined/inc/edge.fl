@@ -1,12 +1,39 @@
+import "inc/colors.fl";
+
 pixelwise Color edge(Image img, Float x, Float y)
 {
-	Color grayscale(Color in)
-    {
-      	return Vec4(Vec3(dot(Vec3(0.222, 0.707, 0.071), in.rgb)), in.a);
-    };
-  
-  	Color sum = (img(x-1.0,y) + img(x,y-1.0) + img(x+1.0,y) + img(x,y+1.0)) - (4.0 * img(x,y));
-  
+	Color sum = (img(x-1.0,y) + img(x,y-1.0) + img(x+1.0,y) + img(x,y+1.0)) - (4.0 * img(x,y));
+
 	return grayscale(Color(sum.rgb, 1.0));
 }
 
+pixelwise Color sobel(Image img, Float x, Float y) {
+	Float intensity(Color c) {
+		return grayscale(c).r;
+		//return sqrt((c.r*c.r)+(c.g*c.g)+(c.b*c.b));
+	};
+
+	Float p00 = intensity(img(x-1.0, y+1.0));
+	Float p01 = intensity(img(x-1.0, y));
+	Float p02 = intensity(img(x-1.0, y-1.0));
+
+	Float p10 = intensity(img(x, y+1.0));
+	Float p12 = intensity(img(x, y-1.0));
+
+	Float p20 = intensity(img(x+1.0, y+1.0));
+	Float p21 = intensity(img(x+1.0, y));
+	Float p22 = intensity(img(x+1.0, y-1.0));
+
+	// Sobel masks
+	//        1 0 -1     -1 -2 -1
+	//    X = 2 0 -2  Y = 0  0  0
+	//        1 0 -1      1  2  1
+
+	Float s_x = p00 + 2.0*p01 + p02 - p20 - 2.0*p21 - p22;
+	Float s_y = -p00 - 2.0*p10 - p20 + p02 + 2.0*p12 + p22;
+
+	Float c = sqrt((s_x*s_x) + (s_y*s_y));
+	c = clamp(c, 0.0, 1.0);
+
+	return Color(Vec3(c), 1.0);
+}
