@@ -4,6 +4,7 @@ var config = {
 	compilerURL: "cmp/cgicomp",
 	debug: true,
 	newName : "untitled-%d",
+	inputDelay: 1000, // μs
 	framebufferSize : 512,
 	defaultImage: "images/factory.jpg",
 	files: {
