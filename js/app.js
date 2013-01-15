@@ -652,8 +652,17 @@ function Inputs() {
 		var old_values = boxed_values || {};
 		if (name in old_values)
 			return old_values[name];
-		else
-			return def;
+		else {
+			for (var key in old_values) {
+				if (name.substr(4) == key.substr(4))
+				{
+					var value = old_values[key];
+					delete old_values[key];
+					return value;
+				}
+			}
+		}
+		return def;
 	}.bind(this);
 
 	/*
@@ -706,11 +715,6 @@ function Inputs() {
 	 * All input widgets.
 	 */
 	var textureWidget = function(name) {
-		var options = [$(templates.inputs.texture.loadbutton()).button({
-				icons: {primary: "ui-icon-folder-open"},
-				text: false
-			})];
-
 		var value = getOldValue(name, config.defaultImage);
 
 		var input = $(templates.inputs.texture.input({ value: value }));
@@ -742,7 +746,7 @@ function Inputs() {
 			input.trigger('change');
 		};
 
-		return createBox(name, "texture", options, body, reset);
+		return createBox(name, "texture", [], body, reset);
 	};
 	var numberWidget = function(type) {
 		return function(name) {
