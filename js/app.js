@@ -654,50 +654,52 @@ function Inputs() {
 	 * Input widget box
 	 */
 	var createBox = function(name, type, extra_options, elems, resetfun) {
-		// input box
-		var outer_div = $('<div class="app-input ui-widget-border ui-corner-all ui-widget"/>');
-
-		// options
-		var options = $('<div class="app-input-options"></div>');
-		options.append($('<button class="option-reset">&nbsp;</button>').button({icons: {primary: "ui-icon-trash"}, text: false}).click(resetfun));
+		var options = $(templates.inputs.box.options());
+		// add reset-button first.
+		options.append(
+				$(templates.inputs.box.reset()).button({
+						icons: {primary: "ui-icon-trash"}, text: false
+					}).click(resetfun)
+			);
 		for (var opt in extra_options)
 			options.prepend(extra_options[opt]);
 
 		// title
-		var title = $('<div class="app-input-title"/>');
-		title.append('<span class="app-input-name">' + name + '</span>');
+		var title = $(templates.inputs.title({
+				content: templates.inputs.box.title({
+						name: name.substr(4),
+						type: type
+					})
+				}));
 		title.append(options);
-		title.append('<span class="app-input-type">' + type + '</span>');
 		title.append('<div style="clear: both;"/>');
 
 		// body
-		var body = $('<div class="app-input-body"></body>');
-
+		var body = $(templates.inputs.box.body());
 		for (var elem in elems)
 			body.append(elems[elem]);
 
-		outer_div.append(title);
-		outer_div.append(body);
+		// box it.
+		var box = $(templates.inputs.box.outer());
+		box.append(title);
+		box.append(body);
 
-		return outer_div;
+		return box;
 	};
 
 	/*
 	 * All input widgets.
 	 */
 	var textureWidget = function(name) {
-		var options = [$('<button class="option-local">&nbsp;</button>').button({icons: {primary: "ui-icon-folder-open"}, text: false})];
-
-		var body = [];
-		body.push('<div class="input-body-title">url</div>');
+		var options = [$(templates.inputs.texture.loadbutton()).button({
+				icons: {primary: "ui-icon-folder-open"},
+				text: false
+			})];
 
 		var value = getOldValue(name, config.defaultImage);
 
-		// input box
-		var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
-
-		// preview image
-		var preview = $('<img class="preview ui-widget-content ui-corner-all"/>');
+		var input = $(templates.inputs.texture.input({ value: value }));
+		var preview = $(templates.inputs.texture.preview());
 
 		// initial value
 		input_values[name] = value;
@@ -713,6 +715,8 @@ function Inputs() {
 		};
 		input.change(onUpdate);
 
+		var body = [];
+		body.push(templates.inputs.title({ content: 'url' }));
 		body.push(input);
 		body.push(preview);
 
@@ -731,7 +735,7 @@ function Inputs() {
 			var value = getOldValue(name, default_value);
 
 			// input box
-			var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + value + '</p></div>');
+			var input = $(templates.inputs.number.input({ value: value }));
 
 			// initial value
 			if (type == "float")
@@ -787,8 +791,8 @@ function Inputs() {
 			// input boxes
 			var names = {0: 'x', 1: 'y', 2: 'z', 3: 'w'};
 			for (var i=0; i<size; i++) {
-				var input_body = $('<div><div class="input-body-title">' + names[i] + '</div></div>');
-				var input = $('<div contenteditable="true" class="textbox ui-widget-content ui-corner-all"><p>' + old_values[i] + '</p></div>');
+				var input_body = $(templates.inputs.vector.body({ name: names[i] }));
+				var input = $(templates.inputs.vector.input({ value: old_values[i].toString() }));
 				boxes.push(input);
 
 				// initial value

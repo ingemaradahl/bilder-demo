@@ -23,6 +23,35 @@ var templates = {
 	       '<span class="ui-icon ui-icon-info"/>' +
 	       '<strong>#{title}</strong></p><p>#{body}</p></div>' +
 	       '</div>',
+	inputs : {
+		title : '<div class="input-title">#{content}</div>',
+		box : {
+			outer : '<div class="app-input ui-widget-border ui-corner-all ui-widget" />',
+			title : '<span class="app-input-name">#{name}</span>' +
+			        '<span class="app-input-type">#{type}</span>',
+			body : '<div class="app-input-body"/>',
+			reset : '<button class="option-reset">&nbsp;</button>',
+			options : '<div class="app-input-options"></div>'
+		},
+		texture : {
+			input : '<div contenteditable="true" class="textbox ui-widget-content ui-corner-all">' +
+			        '<p>#{value}</p>' +
+			        '</div>',
+			loadbutton : '<button class="option-local">&nbsp;</button>',
+			preview : '<img class="preview ui-widget-content ui-corner-all"/>'
+		},
+		number : {
+			input : '<div contenteditable="true" class="textbox ui-widget-content ui-corner-all">' +
+			        '<p>#{value}</p>' +
+					  '</div>'
+		},
+		vector : {
+			input : '<div contenteditable="true" class="textbox ui-widget-content ui-corner-all">' +
+			        '<p>#{value}</p>' +
+					  '</div>',
+			body : '<div><div class="input-body-title">#{name}</div></div>'
+		}
+	},
 	glsl: {
 		precision: "precision #{precision} #{type};\n"
 	}
@@ -47,7 +76,7 @@ var initTemplate = function(template) {
 	var matches = template.match(fieldRegExp);
 
 	if (matches === null)
-		return function() { return s; };
+		return function() { return template; };
 
 	var fields = Array(matches.length);
 	for (var i=0; i<matches.length; i++)

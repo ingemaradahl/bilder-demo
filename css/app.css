@@ -47,7 +47,7 @@
 	margin: 0.8em auto 0 auto;
 }
 
-#app .app-input .app-input-title {
+#app .app-input .input-title {
 	margin-bottom: 0.4em;
 	font-weight: bold;
 }
@@ -86,7 +86,7 @@
 	white-space: nowrap;
 }
 
-.app-input-body .input-body-title {
+.app-input-body .input-title {
 	font-weight: bold;
 	margin-bottom: 0.4em;
 }
