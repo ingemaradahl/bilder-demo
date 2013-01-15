@@ -86,7 +86,15 @@ function App() {
 
 			var texture = gl.createTexture();
 			gl.bindTexture(gl.TEXTURE_2D, texture);
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			try {
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			}
+			catch (exc) {
+				gl.deleteTexture(texture);
+				App().error.post(sprintf("While loading '%s': %s", url, exc.message));
+				return null;
+			}
+
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
@@ -100,11 +108,12 @@ function App() {
 
 		var onerror = function() {
 			App().error.post('Unable to load image "' + image.src + '".');
-			image.src = "";
+			image = null;
 		}.bind(this);
 
 		image.onload = finalize;
 		image.onerror = onerror;
+		image.crossOrigin = "anonymous";
 		image.src = url;
 	};
 
@@ -337,13 +346,7 @@ var Program = (function() {
 				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, config.framebufferSize,
 						config.framebufferSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-				// Renderbuffer probably not needed?
-				//var renderbuffer = gl.createRenderbuffer();
-				//gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-				//gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA4, config.framebufferSize, config.framebufferSize);
-
 				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
-				//gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
 
 				framebuffer.texture = texture;
 				framebuffer.name = name;
@@ -626,9 +629,21 @@ function Inputs() {
 	/*
 	 * Sends all the input values.
 	 */
-	var sendInputs = function() {
-		App().messages.post("new-inputs", input_values);
-	}.bind(this);
+	var sendInputs = (function() {
+		var timeoutId = null;
+
+		var tell = function() { App().messages.post("new-inputs", input_values); };
+
+		return function(force) {
+			if (force) {
+				clearTimeout(timeoutId);
+				tell();
+			}
+
+			clearTimeout(timeoutId);
+			timeoutId = setTimeout(tell, config.inputDelay);
+		};
+	})();
 
 	/*
 	 * Get old value
@@ -706,14 +721,15 @@ function Inputs() {
 		preview.attr('src', value);
 
 		// events (on change)
-		var onUpdate = function() {
+		var onUpdate = function(e, force) {
 			var value = stripHTML(input.html());
 			input_values[name] = value;
 			boxed_values[name] = value;
 			preview.attr('src', value);
-			sendInputs();
+			sendInputs(force);
 		};
 		input.change(onUpdate);
+		input.bind('keypress', function(e) { if (e.keyCode === 13) onUpdate(e, true); });
 
 		var body = [];
 		body.push(templates.inputs.title({ content: 'url' }));

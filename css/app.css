@@ -9,6 +9,7 @@
 	height: 300px;
 	display: inline;
 	transform: scaleY(-1);
+	-webkit-transform: scaleY(-1);
 
 	/* checkerboard background */
 	background-color: #fefefe;
