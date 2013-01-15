@@ -1,4 +1,5 @@
 import "inc/gaussian.fl";
+import "inc/colors.fl";
 
 Color brightPass(Image in, Float cutoff, Float x, Float y) {
 	Color c = in(x,y);

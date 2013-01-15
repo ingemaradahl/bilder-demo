@@ -538,21 +538,62 @@ function Editor() {
 		}
 	};
 
-	/* Upload open files to compiler */
+	/* Upload open files, and their imported files to compiler */
 	this.compile = function() {
 		this.flush();
 		App().error.clear();
 
-		var fs = [];
+		function toArray(obj) {
+			var arr = [];
+
+			for (var o in obj) {
+				if (obj[o])
+					arr.push(obj[o]);
+			}
+
+			return arr;
+		}
+
+		function imports(file) {
+			var re = /^import\s+\"(.*)\"/gm;
+			var files = [];
+			var match = null;
+
+			while (match = re.exec(file.data)) {
+				files.push(match[1]);
+			}
+
+			return files;
+		}
+
+		function additional(fs) {
+			var dirty = false;
+
+			for (var f in fs) {
+				var imported = imports(fs[f]).map(files.findByName);
+				for (var j=0; j<imported.length; j++) {
+					if (imported[j] && !(imported[j].name in fs)) {
+						fs[imported[j].name] = imported[j];
+						dirty = true;
+					}
+				}
+			}
+
+			return dirty ? additional(fs) : fs;
+		}
+
+		var fs = {};
 
 		for (var i=0; i<tabs.length; i++) {
 			if (!tabs[i])
 				continue;
 
-			fs.push(tabs[i].file.toJSON());
+			fs[tabs[i].file.name] = tabs[i].file;
 		}
 
-		var shaders = { files: fs };
+		additional(fs);
+
+		var shaders = { files: toArray(fs).map(function(f) { return f.toJSON(); }) };
 
 		jQuery.ajax(config.compilerURL, {
 			type: 'POST',
@@ -575,8 +616,7 @@ function Editor() {
 				App().buildProgram(data.data);
 			},
 			error: function(err) {
-				// TODO: nicer error..
-				App().error.post(err.responseText);
+				App().error.post(sprintf("There was an error while communicating with the compiler: %s", err.responseText));
 			}
 		});
 
