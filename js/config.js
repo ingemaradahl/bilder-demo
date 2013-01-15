@@ -21,17 +21,14 @@ var config = {
 			, "src/gaussian.fl"
 			, "src/bilateral.fl"
 			, "src/sepia.fl"
+			, "src/retro.fl"
+			, "src/retro_lift.fl"
 
 			, "inc/colors.fl"
 			, "inc/gaussian.fl"
 			, "inc/bloom.fl"
 			, "inc/emboss.fl"
 			, "inc/edge.fl"
-
-			, "bad/Issue4.fl"
-			, "bad/Issue6.fl"
-			, "bad/Issue17.fl"
-			, "bad/Issue21.fl"
 		]
 	},
 	glsl: {
