@@ -21,6 +21,8 @@ var config = {
 			, "src/gaussian.fl"
 			, "src/bilateral.fl"
 			, "src/sepia.fl"
+			, "src/retro.fl"
+			, "src/retro_lift.fl"
 
 			, "inc/colors.fl"
 			, "inc/gaussian.fl"
