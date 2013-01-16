@@ -10,7 +10,6 @@ pixelwise Color edge(Image img, Float x, Float y)
 pixelwise Color sobel(Image img, Float x, Float y) {
 	Float intensity(Color c) {
 		return grayscale(c).r;
-		//return sqrt((c.r*c.r)+(c.g*c.g)+(c.b*c.b));
 	};
 
 	Float p00 = intensity(img(x-1.0, y+1.0));
@@ -35,5 +34,5 @@ pixelwise Color sobel(Image img, Float x, Float y) {
 	Float c = sqrt((s_x*s_x) + (s_y*s_y));
 	c = clamp(c, 0.0, 1.0);
 
-	return Color(Vec3(c), 1.0);
+	return Color(RGB(c), 1.0);
 }

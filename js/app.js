@@ -17,14 +17,10 @@ function App() {
 
 	var canvas = $("canvas");
 	var controls = $("#app-inputs");
-	this.gl = null; // DEBUGGING
-
 	var gl = null;
 
-	var buildInputGUI = function() {
-
-	}.bind(this);
-
+	// url to "main" image (first image specified in main function in program)
+	var mainImage = "";
 
 	this.initGL = function () {
 		this.gl = canvas[0].getContext("experimental-webgl") ||
@@ -72,6 +68,8 @@ function App() {
 		}
 
 		var finalize = function() {
+			var w = image.width;
+			var h = image.height;
 			//Images might have to be resized, see
 			//http://www.khronos.org/webgl/wiki/WebGL_and_OpenGL_Differences#Non-Power_of_Two_Texture_Support
 			if (!isPowerOfTwo(image.width) || !isPowerOfTwo(image.height)) {
@@ -98,6 +96,9 @@ function App() {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
+			texture.origWidth = w;
+			texture.origHeight = h;
+
 			this.messages.post("new-gl-image", {url: url, texture: texture});
 
 			this.imgCache[url] = texture;
@@ -117,9 +118,21 @@ function App() {
 		image.src = url;
 	};
 
-	this.refresh = function () {
+	this.resize = function () {
 		canvas[0].width = canvas.width();
 		canvas[0].height = canvas.height();
+
+		controls.height($("canvas").innerHeight() - $(0.8).toPx());
+		$("#editor").position({my: "left top", at: "left bottom", of: "canvas", offset: "0em 6em"});
+
+		controls.position({my: "left top", at: "right top", of: "canvas", offset: "6em 0em"});
+		controls.width($(window).width() - controls.position().left - $(1.8).toPx());
+
+		canvas.resizable({resize: this.refresh});
+	};
+
+	this.refresh = function () {
+		App().resize();
 
 		// TODO: Improve this, and maybe even remove when programs are run in
 		// real time. Also set new viewport dimension and resolution uniform
@@ -127,20 +140,35 @@ function App() {
 		if (App().program) {
 			App().program.run();
 		}
-
-		controls.height($("canvas").innerHeight() - $(0.8).toPx());
-		$("#editor").position({my: "left top", at: "left bottom", of: "canvas", offset: "0em 6em"});
-
-		controls.position({my: "left top", at: "right top", of: "canvas", offset: "6em 0em"});
-		controls.width($(window).width() - controls.position().left - $(1.8).toPx());
 	};
+
+	var newTexture = function(url, texture) {
+		if (!texture) {
+			texture = url.texture;
+			url = url.url;
+		}
+
+		if (url === mainImage) { 
+			var resolution = this.resolution();
+			var a = resolution[0] * resolution[1];
+
+			var b = Math.sqrt(a/(texture.origWidth*texture.origHeight));
+			var newWidth = b * texture.origWidth,
+				newHeight = b * texture.origHeight;
+			canvas.parent().width(newWidth);
+			canvas.parent().height(newHeight);
+			canvas.width(newWidth);
+			canvas.height(newHeight);
+
+			this.resize();
+		}
+	}.bind(this);
 
 	this.resolution = function() {
 		return vec2.createFrom(canvas[0].width, canvas[0].height);
 	};
 
 	this.buildProgram = function(p) {
-		buildInputGUI();
 		if (this.program)
 			this.program.destroy();
 		this.program = new Program(gl, p);
@@ -148,12 +176,23 @@ function App() {
 	};
 
 	var setInput = function(inputs) {
+		for (var i in inputs) {
+			if (typeof(inputs[i] === "string")) {
+				mainImage = inputs[i];
+				if (mainImage in this.imgCache) {
+					newTexture(mainImage, this.imgCache[mainImage]);
+				}
+				break;
+			}
+		}
+
 		if (this.program)
 			this.program.setInputs(inputs);
 	}.bind(this);
 
 	canvas.resizable({resize: this.refresh});
 	this.messages.subscribe("new-inputs", setInput);
+	this.messages.subscribe("new-gl-image", newTexture);
 	this.refresh();
 }
 
@@ -870,7 +909,7 @@ function Inputs() {
 		$("#app-inputs-widgets > div").sort(sortByHeight).appendTo("#app-inputs-widgets");
 
 		// and do an initial input update.
-		sendInputs();
+		sendInputs(true);
 	}.bind(this);
 }
 

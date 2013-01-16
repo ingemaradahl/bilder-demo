@@ -7,34 +7,38 @@ Color black = Color(0.0, 0.0, 0.0, 1.0);
 Color grayscale(Color color_in)
 {
 	// ITU Rec 709 color conversion standard
-	return Vec4(Vec3(dot(Vec3(0.222, 0.707, 0.071), color_in.rgb)), color_in.a);
+	return Color(RGB(dot(RGB(0.222, 0.707, 0.071), color_in.rgb)), color_in.a);
+}
+
+Color sepia(Color c) {
+	return Color(grayscale(c).rgb * RGB(1.2, 1.0, 0.8), 1.0);
 }
 
 Color sepia(Image img, Float x, Float y)
 {
-	return Vec4(grayscale(img(x, y)).rgb * Vec3(1.2, 1.0, 0.8), 1.0);
+	return sepia(img(x,y));
 }
 
 Color negative(Color c) {
-	return Color(Vec3(1.0) - c.rgb, 1.0);
+	return Color(RGB(1.0) - c.rgb, 1.0);
 }
 
 Color brightness(Color c, Float t) {
-	return Color(mix(Vec3(0.0), c.rgb, t), 1.0);
+	return Color(mix(RGB(0.0), c.rgb, t), 1.0);
 }
 
 Color contrast(Color c, Float t) {
-	return Color(mix(Vec3(0.5), c.rgb, t), 1.0);
+	return Color(mix(RGB(0.5), c.rgb, t), 1.0);
 }
 
 Color saturation(Color c, Float t) {
-	Vec3 lum = Vec3(0.2125 * c.r + 0.7154 * c.g + 0.0721 * c.b);
+	RGB lum = RGB(0.2125 * c.r + 0.7154 * c.g + 0.0721 * c.b);
 	return Color(mix(lum, c.rgb, t), 1.0);
 }
 
 Color exposure(Color c, Float amount) {
 	c = 1.0 - exp((0.0 - c) * amount);
-	return Vec4(c.rgb, 1.0);
+	return Color(c.rgb, 1.0);
 }
 
 Color exposure(Image img, Float amount, Float x, Float y) {
