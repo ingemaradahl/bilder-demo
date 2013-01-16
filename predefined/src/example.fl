@@ -1,4 +1,39 @@
+// Types:
+//  Float, Int, Void
+//  Vectors:
+//    Vec2, Vec3, Vec4
+//  Matrices
+//    Mat2 (2x2), Mat3 (3x3), Mat4 (4x4)
+// All vectors and matrices only handle floats.
+
+// Typedefs:
+// These are always defined:
+//  typedef Color = Vec4;
+//  typedef RGB = Vec3;
+//  typedef Point = Vec2;
+//  typedef Image = Float -> Float -> Color;
+
 import "inc/colors.fl";
+
+Mat3 kernel = Mat3(
+    Vec3(0.2, 0.3, 0.2),
+    Vec3(0.3, 0.8, 0.3),
+    Vec3(0.2, 0.3, 0.2)
+  );
+
+// With pixelwise x and y ranges from 0 to the width and height of img.
+// Without they range from 0 to 1.
+pixelwise Color blur(Image img, Float x, Float y) {
+  Color sample = Color(0.0);
+
+  for (Int j=-1; j<=1; j++) {
+    for (Int i=-1; i<=1; i++) {
+      sample += img(x+float(i), y+float(i)) * kernel[j+1][i+1];
+    }
+  }
+
+  return sample / 2.8;
+}
 
 Color twist(Image input_img, Point center, Float radius, Float angle, Float x, Float y)
 {
@@ -31,8 +66,14 @@ Color main(Float x, Float y)
 			return img_in(x,y);
 	};
 
-	Image twisted = twist(border(Color(0.0)), center, radius, angle); // Partial application
-	Image supah_twisted = twist(twisted, center/Point(2.0), radius, angle);
+  // Partial applications
+  //   A new image is created from border (because of the missing x and y parameters).
+  //   From this twist creates a new image based on the newly created border image.
+  //   The same goes for blur and the second twist.
+	Image twisted = twist(border(Color(0.0)), center, radius, angle);
+	Image supah_twisted = twist(blur(twisted), center/Point(2.0), radius, angle);
+
+  // Finally the call to twist is saturated by giving supah_twisted the final
+  //  parameters x and y producing a color wich is passed to grayscale.
 	return grayscale(supah_twisted(x,y));
 }
-
