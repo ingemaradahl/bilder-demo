@@ -1,3 +1,12 @@
+/**
+ * Retro (instagrammy) effect with border.
+ *
+ * Inputs:
+ *  img: Image on which effect is applied
+ *  border: Border image with red channel for opacity. Try using
+ *  'images/border.png'
+ */
+
 Color vignette(Image img, Float x, Float y) {
 	Color c = img(x,y);
 	Float d = distance(Point(x,y), Point(0.5, 0.5));
