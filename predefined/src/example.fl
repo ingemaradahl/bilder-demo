@@ -1,8 +1,8 @@
 import "inc/colors.fl";
 
-Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Float y)
+Color twist(Image input_img, Point center, Float radius, Float angle, Float x, Float y)
 {
-	Vec2 p = Vec2(x,y) - center;
+	Point p = Point(x,y) - center;
 	Float dist = length(p);
 
 	if (dist < radius)
@@ -12,7 +12,7 @@ Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Fl
 		Float s = sin(theta);
 		Float c = cos(theta);
 
-		p = Vec2(p.x*c-p.y*s, p.x*s+p.y*c);
+		p = Point(p.x*c-p.y*s, p.x*s+p.y*c);
 	}
 	return input_img(p+center);
 }
@@ -20,7 +20,7 @@ Color twist(Image input_img, Vec2 center, Float radius, Float angle, Float x, Fl
 Color main(Float x, Float y)
 {
 	external Image img_in;
-	external Vec2  center;
+	external Point  center;
 	external Float radius;
 	external Float angle;
 
@@ -32,7 +32,7 @@ Color main(Float x, Float y)
 	};
 
 	Image twisted = twist(border(Color(0.0)), center, radius, angle); // Partial application
-	Image supah_twisted = twist(twisted, center/Vec2(2.0), radius, angle);
+	Image supah_twisted = twist(twisted, center/Point(2.0), radius, angle);
 	return grayscale(supah_twisted(x,y));
 }
 
