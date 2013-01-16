@@ -198,6 +198,7 @@ function Editor() {
 					}
 				});
 
+				tabs.push(this);
 				_editor.refresh();
 			}.bind(this);
 
@@ -488,13 +489,11 @@ function Editor() {
 		}
 
 		tab = new Tab(file);
-		tabs.push(tab);
 		tab.open();
 	};
 
 	this.refresh = function() {
 		$("#editor-tabs").tabs("refresh");
-		//$("#editor-tree").filetree("refresh");
 	};
 
 	this.newFile = function(name, data) {
