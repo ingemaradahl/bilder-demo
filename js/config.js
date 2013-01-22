@@ -28,6 +28,7 @@ var config = {
 			, "inc/bloom.fl"
 			, "inc/emboss.fl"
 			, "inc/edge.fl"
+			, "inc/localCorrection.fl"
 		]
 	},
 	glsl: {
