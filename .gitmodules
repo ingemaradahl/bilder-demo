@@ -1,0 +1,6 @@
+[submodule "lib/jqTree"]
+	path = lib/jqTree
+	url = git://github.com/mbraak/jqTree.git
+[submodule "lib/gl-matrix"]
+	path = lib/gl-matrix
+	url = git://github.com/toji/gl-matrix.git

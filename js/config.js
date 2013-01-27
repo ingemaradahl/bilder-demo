@@ -2,7 +2,7 @@
 
 var config = {
 	compilerURL: "cmp/cgicomp",
-	debug: true,
+	debug: false,
 	newName : "untitled-%d",
 	inputDelay: 1000, // μs
 	framebufferSize : 512,
