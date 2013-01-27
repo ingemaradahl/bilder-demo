@@ -72,6 +72,17 @@ function Editor() {
 		return false;
 	}.bind(tabs);
 
+	files.remove = function(file) {
+		for (var i=0; i<this.length; i++) {
+			if (!this[i] || this[i].name !== file.name)
+				continue;
+
+			delete this[i];
+
+			return;
+		}
+	}.bind(files);
+
 	/* Creates a new, unused file name */
 	var newName = (function() {
 		var _untitled = 0;
@@ -295,6 +306,30 @@ function Editor() {
 	var showWarnings = function(warnings) {
 	};
 
+	var _query_cb = null;
+	var queryFilename = function(cb, title, nameStr) {
+		title = title || "New File";
+		_query_cb = cb;
+		var dialog = $("#editor-dialog-newfile");
+
+		// If a name string is given, use that as starting file name
+		if (nameStr) {
+			// Selection start and end positions
+			var start = nameStr.lastIndexOf("/");
+			var end = nameStr.lastIndexOf(".");
+			start = start < 0 ? 0 : start + 1; // Don't include "/"
+			end = end > 0 && end > start ? end : nameStr.length;
+
+			var input = dialog.find("#editor-dialog-newfile-name")[0];
+			input.value = nameStr;
+			input.selectionStart = start;
+			input.selectionEnd = end;
+		}
+
+		dialog.dialog("option", "title", title)
+			.dialog("open");
+	};
+
 	var setPosition = function(file, line, column) {
 		var tab = tabs.findByFile(files.findByName(file));
 
@@ -305,8 +340,9 @@ function Editor() {
 	this.initGUI = function() {
 		var tabsDiv = $("#editor-tabs");
 		var tree = $("#editor-tree > div");
+		var treeMenu = $("#editor-tree #editor-tree-menu");
 
-		if (!tabsDiv.size() || !tree.size())
+		if (!tabsDiv.size() || !tree.size() || !treeMenu.size())
 			return;
 
 		tabsDiv.tabs({
@@ -316,6 +352,9 @@ function Editor() {
 				tab.refresh();
 			}
 		});
+
+		treeMenu.menu().hide();
+
 		tree.tree({
 			data: {},
 			autoOpen: true,
@@ -341,6 +380,47 @@ function Editor() {
 			else
 				tree.tree("toggle", node, false);
 		});
+
+		tree.bind('tree.contextmenu', function (event) {
+			var node = event.node;
+
+			if (!node.file)
+				return;
+
+			treeMenu.show()
+				.position({
+					my: "left top",
+					at: "left bottom",
+					of: event.click_event
+			});
+
+			$(document).one("click", function() {
+				treeMenu.menu("collapseAll", null, true);
+				treeMenu.hide();
+			});
+
+			treeMenu.one("click", function (event) {
+				var item = $(event.target).parents("li").first();
+				var action = item[0].getAttribute("data-action");
+
+				if (action && node.file) {
+					switch(action) {
+						case "delete":
+							Editor().removeFile(node.file);
+							break;
+						case "rename":
+							Editor().renameFile(node.file);
+							break;
+						case "copy":
+							Editor().copyFile(node.file);
+							break;
+					}
+				}
+
+				treeMenu.hide();
+			});
+		});
+
 
 		$("#editor-button-compile")
 			.button({
@@ -373,7 +453,10 @@ function Editor() {
 				icons: { primary: "ui-icon-plus"}
 			})
 			.click(function() {
-				$("#editor-dialog-newfile").dialog("open");
+				var e = Editor();
+				queryFilename(function(name) {
+					e.open(e.newFile(name));
+				}, "New File");
 			});
 
 		$("#editor-button-settings")
@@ -393,7 +476,7 @@ function Editor() {
 					menu.hide();
 				});
 
-				menu.click(function(event) {
+				menu.one("click", function(event) {
 					var item = $(event.target).parents("li").first();
 					var submenu = item[0].getAttribute("data-submenu");
 					if (submenu)
@@ -446,7 +529,7 @@ function Editor() {
 				buttons: {
 					Ok: function() {
 						var name = $(this).find("#editor-dialog-newfile-name")[0].value;
-						Editor().open(Editor().newFile(name));
+						_query_cb(name);
 						$(this).dialog("close");
 					},
 					Cancel: function() {
@@ -460,7 +543,7 @@ function Editor() {
 
 		dialog.find("form").submit(function (event) {
 			var name = dialog.find("#editor-dialog-newfile-name")[0].value;
-			Editor().open(Editor().newFile(name));
+			_query_cb(name);
 			dialog.dialog("close");
 			event.preventDefault();
 		});
@@ -490,6 +573,48 @@ function Editor() {
 
 		tab = new Tab(file);
 		tab.open();
+	};
+
+	this.removeFile = function(file) {
+		if (typeof(file) === "string")
+			file = files.findByName(file);
+
+		if (!file)
+			return;
+
+		var _tree = $("#editor-tree > div");
+		var treeNode = _tree.tree('getNodeById', file.name);
+		if (treeNode) {
+			//try {
+				var parent = treeNode.parent;
+				_tree.tree('removeNode', treeNode);
+				if (parent.children.length === 0) {
+					_tree.tree('removeNode', parent);
+				}
+			//}
+			//catch(e) {
+			//	console.log("Tree removal failed :(");
+			//}
+		}
+
+		var tab = tabs.findByFile(file);
+		if (tab)
+			tabs.remove(tab.id);
+
+		files.remove(file);
+	};
+
+	this.copyFile = function(file) {
+		queryFilename(function(name) {
+			Editor().newFile(name, file.data);
+		}, null, file.name);
+	};
+
+	this.renameFile = function(file) {
+		queryFilename(function(name) {
+			Editor().newFile(name, file.data);
+			Editor().removeFile(file);
+		}, "Rename File", file.name);
 	};
 
 	this.refresh = function() {
