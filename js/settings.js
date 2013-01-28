@@ -1,8 +1,9 @@
-/*jslint smarttabs:true */
+/*jslint smarttabs:true laxcomma: true*/
 
 window.settings = (function() {
 	var s = {
-		"editor-mode": "default"
+		  "editor-mode": "default"
+		, "auto-save": true
 	};
 
 	if (window.localStorage) {

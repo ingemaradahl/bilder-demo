@@ -5,6 +5,7 @@ var config = {
 	debug: false,
 	newName : "untitled-%d",
 	inputDelay: 1000, // μs
+	autosaveDelay: 1000,
 	framebufferSize : 512,
 	defaultImage: "images/factory.jpg",
 	files: {

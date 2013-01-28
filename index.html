@@ -39,8 +39,6 @@
 			app.initGL();
 
 			var editor = new Editor();
-			editor.initGUI();
-			editor.fetch(config.files.fetch);
 		});
 	</script>
 </head>
@@ -69,6 +67,7 @@
 <div id="editor" class="ui-widget">
 	<div id="editor-toolbar" class="ui-widget-header ui-corner-all">
 		<button id="editor-button-newfile">New file</button>
+		<button id="editor-button-save">Save</button>
 		<button id="editor-button-compile">Compile</button>
 		<button id="editor-button-settings">Settings</button>
 
@@ -80,6 +79,10 @@
 					<li data-mode="emacs"><a href="#"><span class="ui-icon"></span>Emacs</a></li>
 				</ul>
 			</li>
+			<li data-setting="autosave"><a href="#"><span
+					class="ui-icon"></span>Autosave</a></li>
+			<li data-setting="fetch"><a href="#"><span class="ui-icon
+					ui-icon-refresh"></span>Fetch default files</a></li>
 		</ul>
 
 		<div id="editor-toolbar-loader"></div>

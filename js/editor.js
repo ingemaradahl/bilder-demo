@@ -200,6 +200,8 @@ function Editor() {
 					matchBrackets: true
 				});
 
+				_codemirror.on("change", Editor().autosave);
+
 				_codemirrorDiv.find("> div").addClass("ui-corner-all ui-widget ui-widget-container");
 				_codemirrorDiv.keypress(function(event) {
 					// Ctrl+Return
@@ -255,6 +257,7 @@ function Editor() {
 			};
 
 			this.destroy = function() {
+				this.flush();
 				$('li[aria-controls="'+this.id+'"]').remove();
 				$("#"+this.id).remove();
 
@@ -459,6 +462,16 @@ function Editor() {
 				}, "New File");
 			});
 
+		$("#editor-button-save")
+			.button({
+				text: true,
+				icons: { primary: "ui-icon-disk"}
+			})
+			.click(function() {
+				Editor().save();
+			});
+
+
 		$("#editor-button-settings")
 			.button({
 				text: true,
@@ -491,6 +504,22 @@ function Editor() {
 
 						menu.menu("collapseAll", null, true);
 						menu.hide();
+						return;
+					}
+
+					key = item[0].getAttribute("data-setting");
+					if (key.length) {
+						switch (key) {
+							case "autosave":
+								value = settings["auto-save"];
+								settings.set("auto-save", !value);
+								break;
+							case "fetch":
+								Editor().fetch(config.files.fetch);
+								break;
+						}
+						menu.hide();
+						return;
 					}
 
 					menu.hide();
@@ -513,12 +542,31 @@ function Editor() {
 			}
 		};
 
+		var refreshAutosave = function(element) {
+			var span = $(element).find("span");
+			if(settings["auto-save"])
+				span.addClass("ui-icon-check ui-icon");
+			else
+				span.removeClass("ui-icon-check ui-icon");
+		};
+
 		settingsMenu.find('[data-submenu="editor-mode"] li').each(refreshEditorMode);
+		refreshAutosave(settingsMenu.find('[data-setting="autosave"]'));
 		App().messages.subscribe("settings-changed", function(setting) {
-			if (!setting.key || setting.key !== "editor-mode")
+			if (!setting.key)
 				return;
 
-			settingsMenu.find('[data-submenu="editor-mode"] li').each(refreshEditorMode);
+			switch (setting.key) {
+				case "editor-mode":
+					settingsMenu.find('[data-submenu="editor-mode"] li')
+						.each(refreshEditorMode);
+					break;
+				case "auto-save":
+					refreshAutosave(settingsMenu.find('[data-setting="autosave"]'));
+					if (settings["auto-save"])
+						Editor().save();
+					break;
+			}
 		});
 
 
@@ -585,16 +633,11 @@ function Editor() {
 		var _tree = $("#editor-tree > div");
 		var treeNode = _tree.tree('getNodeById', file.name);
 		if (treeNode) {
-			//try {
-				var parent = treeNode.parent;
-				_tree.tree('removeNode', treeNode);
-				if (parent.children.length === 0) {
-					_tree.tree('removeNode', parent);
-				}
-			//}
-			//catch(e) {
-			//	console.log("Tree removal failed :(");
-			//}
+			var parent = treeNode.parent;
+			_tree.tree('removeNode', treeNode);
+			if (parent.children.length === 0) {
+				_tree.tree('removeNode', parent);
+			}
 		}
 
 		var tab = tabs.findByFile(file);
@@ -602,7 +645,9 @@ function Editor() {
 			tabs.remove(tab.id);
 
 		files.remove(file);
-	};
+
+		this.autosave();
+	}.bind(this);
 
 	this.copyFile = function(file) {
 		queryFilename(function(name) {
@@ -615,6 +660,42 @@ function Editor() {
 			Editor().newFile(name, file.data);
 			Editor().removeFile(file);
 		}, "Rename File", file.name);
+	};
+
+	this.save = function() {
+		this.flush();
+
+		if (window.localStorage) {
+			var fs = {};
+			for (var i=0; i<files.length; i++) {
+				if (!files[i])
+					continue;
+
+				fs[files[i].name] = files[i].data;
+			}
+
+			window.localStorage["files"] = JSON.stringify(fs);
+		}
+	}.bind(this);
+
+	this.autosave = (function() {
+		var timer = null;
+		return function() {
+			if (!settings["auto-save"])
+				return;
+
+			clearTimeout(timer);
+			setTimeout(Editor().save, config.autosaveDelay);
+		};
+	})();
+
+	this.exists = function(fileName) {
+		for (var i=0; i<files.length; i++) {
+			if (files[i] && files[i].name === fileName)
+				return true;
+		}
+
+		return false;
 	};
 
 	this.refresh = function() {
@@ -653,6 +734,9 @@ function Editor() {
 			break;
 		case "string":
 			var file = files;
+			if (this.exists(file))
+				break;
+
 			jQuery.ajax(config.files.root + file, {
 				dataType: 'text',
 				success: this.newFile.bind(this, file)
@@ -754,5 +838,26 @@ function Editor() {
 	this.enableCompile = function() {
 		$("#editor-button-compile").button("enable");
 	};
+
+	// Initialize
+	(function() {
+		this.initGUI();
+
+		if (window.localStorage) {
+			if (window.localStorage["files"]) {
+				var fs = JSON.parse(window.localStorage["files"]);
+				for (var f in fs) {
+					this.newFile(f, fs[f]);
+				}
+			}
+			else {
+				this.fetch(config.files.fetch);
+			}
+		}
+		else {
+			App().error.postWarning("localStorage not supported by your browser, files won't be saved!");
+			this.fetch(config.files.fetch);
+		}
+	}.bind(this))();
 }
 
