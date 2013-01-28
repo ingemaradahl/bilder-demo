@@ -72,6 +72,13 @@ function Editor() {
 		return false;
 	}.bind(tabs);
 
+	tabs.clearErrors = function() {
+		for (var i=0; i<this.length; i++) {
+			if (this[i])
+				this[i].clear();
+		}
+	}.bind(tabs);
+
 	files.remove = function(file) {
 		for (var i=0; i<this.length; i++) {
 			if (!this[i] || this[i].name !== file.name)
@@ -177,6 +184,7 @@ function Editor() {
 			var _codemirrorDiv = null;
 			var _codemirror = null;
 			var _label = null;
+			var _errorLine = null;
 
 			var addTab = function() {
 				_label = _tabs.find(".ui-tabs-nav").append(
@@ -229,7 +237,14 @@ function Editor() {
 
 				if (line > -1 && column > -1) {
 					_codemirror.scrollIntoView({line: line, ch: column});
-					// TODO: flash line
+					_errorLine = _codemirror.addLineClass(line-1, "background", "error");
+				}
+			};
+
+			this.clear = function() {
+				if (_errorLine) {
+					_codemirror.removeLineClass(_errorLine, "background", "error");
+					_errorLine = null;
 				}
 			};
 
@@ -749,6 +764,7 @@ function Editor() {
 	/* Upload open files, and their imported files to compiler */
 	this.compile = function() {
 		this.flush();
+		tabs.clearErrors();
 		App().error.clear();
 
 		function toArray(obj) {
