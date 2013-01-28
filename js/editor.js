@@ -238,6 +238,8 @@ function Editor() {
 				if (line > -1 && column > -1) {
 					_codemirror.scrollIntoView({line: line, ch: column});
 					_errorLine = _codemirror.addLineClass(line-1, "background", "error");
+					_codemirror.focus();
+					_codemirror.doc.setCursor(line-1, column-1);
 				}
 			};
 
