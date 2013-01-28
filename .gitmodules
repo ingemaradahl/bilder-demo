@@ -4,3 +4,6 @@
 [submodule "lib/gl-matrix"]
 	path = lib/gl-matrix
 	url = git://github.com/toji/gl-matrix.git
+[submodule "lib/codemirror-git"]
+	path = lib/codemirror-git
+	url = git://github.com/marijnh/CodeMirror.git
