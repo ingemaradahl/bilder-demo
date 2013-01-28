@@ -4,6 +4,7 @@ window.settings = (function() {
 	var s = {
 		  "editor-mode": "default"
 		, "auto-save": true
+		, "last-file": config.files.defaultFile
 	};
 
 	if (window.localStorage) {

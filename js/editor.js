@@ -640,6 +640,7 @@ function Editor() {
 		if (typeof(file) === "string")
 			return this.open(files.findByName(file));
 
+		settings.set("last-file", file.name);
 		var tab = tabs.findByFile(file);
 		if (tab) {
 			tab.open();
@@ -878,6 +879,9 @@ function Editor() {
 				var fs = JSON.parse(window.localStorage["files"]);
 				for (var f in fs) {
 					this.newFile(f, fs[f]);
+					if (f === settings["last-file"]) {
+						this.open(f);
+					}
 				}
 			}
 			else {
