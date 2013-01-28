@@ -1,7 +1,7 @@
 /*jslint smarttabs:true laxcomma: true*/
 
 var config = {
-	compilerURL: "cmp/cgicomp",
+	compilerURL: "cmp/cgibildc",
 	debug: false,
 	newName : "untitled-%d",
 	inputDelay: 1000, // μs

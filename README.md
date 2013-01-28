@@ -38,5 +38,5 @@ If you're using your own web server, don't forget to configure it to recognise
 `cgicomp` as a cgi executable (...or just use the python server).
 
 ## Licence
-Bilder (and the Bilder Demo platform) is licensed under the GNU Lesser General
-Public License, see LICENSE for more information.
+The Bilder Demo platform (and the Bilder Compiler) is licensed under the GNU
+Lesser General Public License, see LICENSE for more information.
