@@ -205,19 +205,21 @@ function Editor() {
 					value: this.file.data,
 					keyMap: settings["editor-mode"],
 					lineNumbers: true,
-					matchBrackets: true
-				});
-
-				_codemirror.on("change", Editor().autosave);
-
-				_codemirrorDiv.find("> div").addClass("ui-corner-all ui-widget ui-widget-container");
-				_codemirrorDiv.keypress(function(event) {
-					// Ctrl+Return
-					if (event.ctrlKey && event.which === 13) {
-						_editor.compile();
-						event.preventDefault();
+					matchBrackets: true,
+					onKeyEvent: function(cm, event) {
+						// Ctrl+Return
+						if (event.type === "keydown" && event.ctrlKey &&
+								event.which === 13) {
+							_editor.compile();
+							event.stop();
+						}
 					}
 				});
+
+				_codemirror.on("change", _editor.autosave);
+
+				_codemirrorDiv.find("> div")
+					.addClass("ui-corner-all ui-widget ui-widget-container");
 
 				tabs.push(this);
 				_editor.refresh();
@@ -234,11 +236,11 @@ function Editor() {
 
 			this.open = function(line, column) {
 				_tabs.tabs("select", index());
+				_codemirror.focus();
 
 				if (line > -1 && column > -1) {
 					_codemirror.scrollIntoView({line: line, ch: column});
 					_errorLine = _codemirror.addLineClass(line-1, "background", "error");
-					_codemirror.focus();
 					_codemirror.doc.setCursor(line-1, column-1);
 				}
 			};
@@ -353,9 +355,14 @@ function Editor() {
 	var setPosition = function(file, line, column) {
 		var tab = tabs.findByFile(files.findByName(file));
 
-		if (tab)
+		if (tab) {
 			tab.open(line, column);
-	};
+		}
+		else {
+			tab = this.open(file);
+			tab.open(line, column);
+		}
+	}.bind(this);
 
 	this.initGUI = function() {
 		var tabsDiv = $("#editor-tabs");
@@ -630,14 +637,19 @@ function Editor() {
 		if (!file)
 			return;
 
+		if (typeof(file) === "string")
+			return this.open(files.findByName(file));
+
 		var tab = tabs.findByFile(file);
 		if (tab) {
 			tab.open();
-			return;
+			return tab;
 		}
 
 		tab = new Tab(file);
 		tab.open();
+
+		return tab;
 	};
 
 	this.removeFile = function(file) {
