@@ -4,7 +4,7 @@ var config = {
 	compilerURL: "cmp/cgibildc",
 	debug: false,
 	newName : "untitled-%d",
-	inputDelay: 1000, // μs
+	inputDelay: 1400, // μs
 	autosaveDelay: 1000,
 	framebufferSize : 512,
 	defaultImage: "images/lena.png",

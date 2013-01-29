@@ -775,13 +775,6 @@ function Inputs() {
 	var textureWidget = function(name) {
 		var value = getOldValue(name, config.defaultImage);
 
-		var input = $(templates.inputs.texture.input({ value: value }));
-		var preview = $(templates.inputs.texture.preview());
-
-		// initial value
-		input_values[name] = value;
-		preview.attr('src', value);
-
 		// events (on change)
 		var onUpdate = function(e, force) {
 			var value = stripHTML(input.html());
@@ -790,6 +783,18 @@ function Inputs() {
 			preview.attr('src', value);
 			sendInputs(force);
 		};
+
+		var input = $(templates.inputs.texture.input({ value: value }));
+		input.autocomplete({
+			source: Object.keys(config.images),
+			select: function(e) { onUpdate(e, true); }
+		});
+		var preview = $(templates.inputs.texture.preview());
+
+		// initial value
+		input_values[name] = value;
+		preview.attr('src', value);
+
 		input.change(onUpdate);
 		input.bind('keypress', function(e) { if (e.keyCode === 13) onUpdate(e, true); });
 
@@ -1034,7 +1039,7 @@ $('[contenteditable]').live('focus', function() {
     var $this = $(this);
     $this.data('before', $this.html());
     return $this;
-}).live('blur keyup paste', function() {
+}).live('keyup paste', function() {
     var $this = $(this);
     if ($this.data('before') !== $this.html()) {
         $this.data('before', $this.html());
