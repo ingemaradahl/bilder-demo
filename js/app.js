@@ -786,7 +786,7 @@ function Inputs() {
 
 		var input = $(templates.inputs.texture.input({ value: value }));
 		input.autocomplete({
-			source: Object.keys(config.images).concat(['images/lena.png']),
+			source: Object.keys(config.images),
 			select: function(e) { onUpdate(e, true); }
 		});
 		var preview = $(templates.inputs.texture.preview());
