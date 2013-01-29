@@ -111,10 +111,21 @@ img.center {
 #attribution > p {
 	font-size: 80%;
 	color: #aaa;
+	margin: 0em;
 }
 
 #attribution a, #attribution a:visited {
 	color: #aaa;
+}
+
+#about-dialog {
+	padding-bottom: 1em;
+}
+
+#about-dialog hr {
+	border: 0;
+	border-bottom: 1px solid #aaa;
+	margin-bottom: 0.8em;
 }
 
 #about-dialog > img {

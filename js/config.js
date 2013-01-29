@@ -41,8 +41,11 @@ var config = {
 		        "}"
 	},
 	images: {
-		//'images/lena.png': { author: "Playboy", attribution: "http://www.playboy.com", description: "Lena"}
 		  'images/oslo.jpg': { author: "HaraldMM", attribution: "http://www.flickr.com/photos/haraldmm/4754512932/sizes/l/in/photostream/", description: "Oslo"}
-		, 'images/desert.jpg': { author: "Monica Guy", attribution: "http://www.flickr.com/photos/53881187@N02/4983982785/sizes/l/in/photostream/", description: "Desert"}
+		, 'images/desert.jpg': { author: "Monica Guy", attribution: "http://www.flickr.com/photos/53881187@N02/4983982785/sizes/l/in/photostream/", description: "Desert" }
+		, 'images/train.jpg': { author: "Arthur Araújo", attribution: "http://www.flickr.com/photos/tutzstyle/8426670212/", description: "Old train" }
+		, 'images/yellow_train.jpg': { author: "Bart", attribution: "http://www.flickr.com/photos/89246112@N00/8352439289/in/photostream/", description: "Yellow train" }
+		, 'images/bridge.jpg': { author: "Railways of Australia", attribution: "http://www.flickr.com/photos/railwayofaustralia/8425520163/in/photostream/", description: "Asplin Bridge" }
+		, 'images/waterfall.jpg': { author: "aksynth", attribution: "http://www.flickr.com/photos/23313207@N00/8426609538/sizes/l/in/photostream/", description: "Waterfall" }
 	}
 };
