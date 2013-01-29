@@ -560,6 +560,8 @@ function Editor() {
 							case "fetch":
 								Editor().fetch(config.files.fetch);
 								break;
+							case "about":
+								Editor().about();
 						}
 						menu.hide();
 						return;
@@ -638,6 +640,19 @@ function Editor() {
 			dialog.dialog("close");
 			event.preventDefault();
 		});
+
+		var about = $("#about-dialog").dialog({
+				autoOpen: false,
+				modal: true,
+				minWidth: 350
+		});
+
+		// Build attribution list
+		var attribution = about.find("#attribution");
+		for (var url in config.images) {
+			attribution.append($(templates.attribution(config.images[url])));
+
+		}
 
 	};
 
@@ -887,6 +902,10 @@ function Editor() {
 
 	this.enableCompile = function() {
 		$("#editor-button-compile").button("enable");
+	};
+
+	this.about = function() {
+		$("#about-dialog").dialog("open");
 	};
 
 	// Initialize

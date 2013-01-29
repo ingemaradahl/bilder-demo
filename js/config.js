@@ -39,5 +39,10 @@ var config = {
 		        "void main(void) {\n" +
 		        "	gl_Position = vec4(aVertexPosition, 0.0, 1.0);\n" +
 		        "}"
+	},
+	images: {
+		//'images/lena.png': { author: "Playboy", attribution: "http://www.playboy.com", description: "Lena"}
+		  'images/oslo.jpg': { author: "HaraldMM", attribution: "http://www.flickr.com/photos/haraldmm/4754512932/sizes/l/in/photostream/", description: "Oslo"}
+		, 'images/desert.jpg': { author: "Monica Guy", attribution: "http://www.flickr.com/photos/53881187@N02/4983982785/sizes/l/in/photostream/", description: "Desert"}
 	}
 };

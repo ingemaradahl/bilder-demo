@@ -42,6 +42,8 @@ var templates = {
 	       '<span class="ui-icon ui-icon-info"/>' +
 	       '<strong>#{title}</strong></p><p>#{body}</p></div>' +
 	       '</div>',
+	attribution: '<p>#{description} image courtesy of ' +
+	             '<a href="#{attribution}">#{author}</a></p>',
 	inputs : {
 		title : '<div class="input-title">#{content}</div>',
 		box : {

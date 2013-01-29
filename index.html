@@ -54,6 +54,16 @@
 	</form>
 </div>
 
+<div id="about-dialog" title="About">
+	<img src="images/lena_twist.png" class="flipped center" alt="Lena with a twist
+	operation applied"/>
+	<h4>Bilder - A Domain Specific Language for Image Processing</h4>
+	<p>See <a href="https://github.com/ingemaradahl/bilder">github</a> for
+	further information on how the Bilder language works.</p>
+	<div id="attribution">
+	</div>
+</div>
+
 <div id="app" class="ui-widget">
 	<canvas class="ui-widget-border ui-corner-all"></canvas>
 	<div id="app-inputs" class="ui-widget ui-widget-content ui-corner-all">
@@ -83,6 +93,8 @@
 					class="ui-icon"></span>Autosave</a></li>
 			<li data-setting="fetch"><a href="#"><span class="ui-icon
 					ui-icon-refresh"></span>Fetch default files</a></li>
+			<li type='separator'></li>
+			<li data-setting="about"><a href="#">About...</a></li>
 		</ul>
 
 		<div id="editor-toolbar-loader"></div>

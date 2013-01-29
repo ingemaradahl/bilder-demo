@@ -95,3 +95,29 @@
 .vector-body .textbox {
 	margin-bottom: 0.4em;
 }
+
+img.flipped {
+	scaleY(-1);
+	-webkit-transform: scaleY(-1);
+	-moz-transform: scaleY(-1);
+}
+
+img.center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#attribution > p {
+	font-size: 80%;
+	color: #aaa;
+}
+
+#attribution a, #attribution a:visited {
+	color: #aaa;
+}
+
+#about-dialog > img {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
