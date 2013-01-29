@@ -1,4 +1,4 @@
-import "inc/gaussian.fl";
+import "inc/gaussian.bild";
 
 Color main(Float x, Float y) {
   external Image img;

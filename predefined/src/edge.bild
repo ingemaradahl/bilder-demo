@@ -1,5 +1,5 @@
-import "inc/edge.fl";
-import "inc/colors.fl";
+import "inc/edge.bild";
+import "inc/colors.bild";
 
 Color main(Float x, Float y)
 {

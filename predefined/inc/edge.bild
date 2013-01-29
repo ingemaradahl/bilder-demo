@@ -1,4 +1,4 @@
-import "inc/colors.fl";
+import "inc/colors.bild";
 
 pixelwise Color edge(Image img, Float x, Float y)
 {

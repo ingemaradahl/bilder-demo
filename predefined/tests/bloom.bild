@@ -1,4 +1,4 @@
-import "inc/bloom.fl";
+import "inc/bloom.bild";
 
 Color main(Float x, Float y) {
 	external Image img_in;

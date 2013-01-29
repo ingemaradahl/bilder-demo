@@ -3,8 +3,8 @@
  * published in IS&T/SID 8th Color Imaging Conference 2000
  */
 
-import "inc/colors.fl";
-import "inc/gaussian.fl";
+import "inc/colors.bild";
+import "inc/gaussian.bild";
 
 Color mask(Image img, Float x, Float y) {
 	Color i(Float x, Float y) {

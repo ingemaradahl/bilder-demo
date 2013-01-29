@@ -1,5 +1,5 @@
-import "inc/gaussian.fl";
-import "inc/colors.fl";
+import "inc/gaussian.bild";
+import "inc/colors.bild";
 
 Color brightPass(Image in, Float cutoff, Float x, Float y) {
 	Color c = in(x,y);

@@ -9,27 +9,27 @@ var config = {
 	framebufferSize : 512,
 	defaultImage: "images/factory.jpg",
 	files: {
-		defaultFile: "tests/bloom.fl",
+		defaultFile: "tests/bloom.bild",
 		root: "predefined/",
 		fetch: [
-			  "tests/sample.fl"
-			, "tests/bloom.fl"
+			  "tests/sample.bild"
+			, "tests/bloom.bild"
 
-			, "src/example.fl"
-			, "src/simple.fl"
-			, "src/emboss.fl"
-			, "src/edge.fl"
-			, "src/gaussian.fl"
-			, "src/bilateral.fl"
-			, "src/sepia.fl"
-			, "src/retro.fl"
+			, "src/example.bild"
+			, "src/simple.bild"
+			, "src/emboss.bild"
+			, "src/edge.bild"
+			, "src/gaussian.bild"
+			, "src/bilateral.bild"
+			, "src/sepia.bild"
+			, "src/retro.bild"
 
-			, "inc/colors.fl"
-			, "inc/gaussian.fl"
-			, "inc/bloom.fl"
-			, "inc/emboss.fl"
-			, "inc/edge.fl"
-			, "inc/localCorrection.fl"
+			, "inc/colors.bild"
+			, "inc/gaussian.bild"
+			, "inc/bloom.bild"
+			, "inc/emboss.bild"
+			, "inc/edge.bild"
+			, "inc/localCorrection.bild"
 		]
 	},
 	glsl: {
