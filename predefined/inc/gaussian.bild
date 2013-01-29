@@ -13,24 +13,30 @@ pixelwise Color gaussianBlur(Image input_img, Float stdDev, Float x, Float y)
 
 	Color horizontal(Float x, Float y)
 	{
+		Float weight = 0.0;
 		RGB sum = RGB(0.0);
 		for (Float i = -RADIUS; i <= RADIUS; i++)
 		{
-			sum += input_img(x+i, y).rgb * gaussianWeight(abs(i));
+			Float w = gaussianWeight(abs(i));
+			sum += input_img(x+i, y).rgb * w;
+			weight += w;
 		}
 
-		return Color(sum / RGB(RADIUS*2.0), 1.0);
+		return Color(sum / weight, 1.0);
 	};
 
 	Color vertical(Image input_img, Float x, Float y)
 	{
+		Float weight = 0.0;
 		RGB sum = RGB(0.0);
 		for (Float i = -RADIUS; i <= RADIUS; i++)
 		{
-			sum += input_img(x, y+i).rgb * gaussianWeight(abs(i));
+			Float w = gaussianWeight(abs(i));
+			sum += input_img(x, y+i).rgb * w;
+			weight += w;
 		}
 
-		return Color(sum / RGB(RADIUS*2.0), 1.0);
+		return Color(sum / weight, 1.0);
 	};
 
 	return vertical(horizontal, x, y);
