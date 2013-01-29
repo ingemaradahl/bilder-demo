@@ -650,8 +650,8 @@ function Editor() {
 		// Build attribution list
 		var attribution = about.find("#attribution");
 		for (var url in config.images) {
-			attribution.append($(templates.attribution(config.images[url])));
-
+			if (config.images[url])
+				attribution.append($(templates.attribution(config.images[url])));
 		}
 
 	};

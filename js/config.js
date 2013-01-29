@@ -47,5 +47,7 @@ var config = {
 		, 'images/yellow_train.jpg': { author: "Bart", attribution: "http://www.flickr.com/photos/89246112@N00/8352439289/in/photostream/", description: "Yellow train" }
 		, 'images/bridge.jpg': { author: "Railways of Australia", attribution: "http://www.flickr.com/photos/railwayofaustralia/8425520163/in/photostream/", description: "Asplin Bridge" }
 		, 'images/waterfall.jpg': { author: "aksynth", attribution: "http://www.flickr.com/photos/23313207@N00/8426609538/sizes/l/in/photostream/", description: "Waterfall" }
+		, 'images/border.png': null
+		, 'images/lena.png': null
 	}
 };
