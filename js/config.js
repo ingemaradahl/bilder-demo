@@ -7,9 +7,9 @@ var config = {
 	inputDelay: 1000, // μs
 	autosaveDelay: 1000,
 	framebufferSize : 512,
-	defaultImage: "images/factory.jpg",
+	defaultImage: "images/lena.png",
 	files: {
-		defaultFile: "tests/bloom.bild",
+		defaultFile: "src/edge.bild",
 		root: "predefined/",
 		fetch: [
 			  "tests/sample.bild"
